@@ -9,6 +9,7 @@ final class TagView: UIView {
     private let usesLabel = UILabel()
     private let lineChartView = LineChartView()
     private var tagConfiguration: TagContentConfiguration
+    private var lineChartConstraints = [NSLayoutConstraint]()
 
     init(configuration: TagContentConfiguration) {
         tagConfiguration = configuration
@@ -24,11 +25,23 @@ final class TagView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
 }
 
 extension TagView {
     static func estimatedHeight(width: CGFloat, tag: Tag) -> CGFloat {
-        UITableView.automaticDimension
+        let nameHeight = "#".appending(tag.name)
+            .height(width: width, font: .preferredFont(forTextStyle: .headline))
+
+        if tag.history != nil {
+            let leftColumnHeight = nameHeight + .compactSpacing
+                + "0".height(width: width, font: .preferredFont(forTextStyle: .subheadline))
+            let rightColumnHeight = UIFont.preferredFont(forTextStyle: .largeTitle).lineHeight
+
+            return .defaultSpacing * 2 + max(leftColumnHeight, rightColumnHeight)
+        }
+
+        return .defaultSpacing * 2 + nameHeight
     }
 }
 
@@ -62,6 +75,7 @@ private extension TagView {
         verticalStackView.addArrangedSubview(nameLabel)
         nameLabel.adjustsFontForContentSizeCategory = true
         nameLabel.font = .preferredFont(forTextStyle: .headline)
+        nameLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         verticalStackView.addArrangedSubview(accountsLabel)
         accountsLabel.adjustsFontForContentSizeCategory = true
@@ -77,13 +91,16 @@ private extension TagView {
 
         stackView.addArrangedSubview(lineChartView)
 
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
-            stackView.topAnchor.constraint(equalTo: readableContentGuide.topAnchor),
-            stackView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: readableContentGuide.bottomAnchor),
+        lineChartConstraints = [
             lineChartView.heightAnchor.constraint(equalTo: usesLabel.heightAnchor),
             lineChartView.widthAnchor.constraint(equalTo: lineChartView.heightAnchor, multiplier: 16 / 9)
+        ]
+
+        NSLayoutConstraint.activate([
+            stackView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: .defaultSpacing),
+            stackView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -.defaultSpacing)
         ])
     }
 
@@ -115,8 +132,17 @@ private extension TagView {
             usesLabel.isHidden = true
         }
 
+        let showChart = !viewModel.usageHistory.isEmpty
         lineChartView.values = viewModel.usageHistory.reversed()
-        lineChartView.isHidden = viewModel.usageHistory.isEmpty
+        lineChartView.isHidden = !showChart
+
+        if showChart {
+            NSLayoutConstraint.activate(lineChartConstraints)
+        } else {
+            NSLayoutConstraint.deactivate(lineChartConstraints)
+        }
+
+        invalidateIntrinsicContentSize()
 
         self.accessibilityLabel = accessibilityLabel
 

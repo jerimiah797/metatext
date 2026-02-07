@@ -4,7 +4,13 @@ import UIKit
 import ViewModels
 
 final class TagTableViewCell: SeparatorConfiguredTableViewCell {
-    var viewModel: TagViewModel?
+    var viewModel: TagViewModel? {
+        didSet {
+            guard let viewModel = viewModel else { return }
+
+            contentConfiguration = TagContentConfiguration(viewModel: viewModel)
+        }
+    }
 
     override func updateConfiguration(using state: UICellConfigurationState) {
         guard let viewModel = viewModel else { return }

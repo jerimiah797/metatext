@@ -13,6 +13,7 @@ A free, open-source iOS Mastodon client.
 - **Fixed crash on posts with unparseable URLs** — empty or malformed URLs from remote instances (commonly custom emoji) no longer cause the entire timeline or post detail to fail to load (NSURLErrorDomain -1000)
 - **Fixed Sendable conformance warnings** for Swift 6
 - **Improved remote profile loading** — when visiting a profile hosted on another instance, posts now load automatically via retry instead of requiring the user to back out and reload (particularly noticeable with GoToSocial servers, which fetch remote content asynchronously)
+- **Fixed hashtag search results layout** — tag cells rendered as tiny illegible lines on servers (like GoToSocial) that don't return tag history data; also increased search debounce to reduce rate limiting
 
 ## Contributing Bug Reports
 

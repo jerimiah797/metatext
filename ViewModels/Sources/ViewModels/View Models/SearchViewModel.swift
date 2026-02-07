@@ -41,7 +41,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
 }
 
 private extension SearchViewModel {
-    static let debounceInterval: TimeInterval = 0.8
+    static let debounceInterval: TimeInterval = 1.0
 }
 
 private extension SearchScope {
