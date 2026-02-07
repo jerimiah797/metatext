@@ -25,7 +25,6 @@
       }
     },
     {
-      "enabled" : false,
       "target" : {
         "containerPath" : "container:DB",
         "identifier" : "DBTests",

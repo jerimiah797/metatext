@@ -16,7 +16,8 @@ let package = Package(
     dependencies: [
         .package(name: "GRDB", url: "https://github.com/jerimiah797/GRDB.swift.git", .revision("67b1aa68e")),
         .package(path: "Mastodon"),
-        .package(path: "Secrets")
+        .package(path: "Secrets"),
+        .package(path: "Keychain")
     ],
     targets: [
         .target(
@@ -24,6 +25,6 @@ let package = Package(
             dependencies: ["GRDB", "Mastodon", "Secrets"]),
         .testTarget(
             name: "DBTests",
-            dependencies: ["DB"])
+            dependencies: ["DB", .product(name: "MockKeychain", package: "Keychain")])
     ]
 )
