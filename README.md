@@ -9,7 +9,7 @@ A free, open-source iOS Mastodon client.
 ## Changes in this fork
 
 - **Xcode 26 / Swift 6 compatibility** — builds and runs on the latest toolchain
-- **GRDB dependency updated** — uses a [forked GRDB](https://github.com/jerimiah797/GRDB.swift) with Swift 6 fixes
+- **GRDB upgraded to 7.9.0** — uses a [forked GRDB](https://github.com/jerimiah797/GRDB.swift/tree/sqlcipher-v7) with bundled SQLCipher for on-device encryption via SPM
 - **Fixed crash on posts with unparseable URLs** — empty or malformed URLs from remote instances (commonly custom emoji) no longer cause the entire timeline or post detail to fail to load (NSURLErrorDomain -1000)
 - **Fixed Sendable conformance warnings** for Swift 6
 - **Improved remote profile loading** — when visiting a profile hosted on another instance, posts now load automatically via retry instead of requiring the user to back out and reload (particularly noticeable with GoToSocial servers, which fetch remote content asynchronously)
