@@ -14,6 +14,7 @@ A free, open-source iOS Mastodon client.
 - **Fixed Sendable conformance warnings** for Swift 6
 - **Improved remote profile loading** — when visiting a profile hosted on another instance, posts now load automatically via retry instead of requiring the user to back out and reload (particularly noticeable with GoToSocial servers, which fetch remote content asynchronously)
 - **Fixed hashtag search results layout** — tag cells rendered as tiny illegible lines on servers (like GoToSocial) that don't return tag history data; also increased search debounce to reduce rate limiting
+- **Fixed Edit Profile / Account Settings for GoToSocial** — uses correct GoToSocial settings URLs and opens them in-browser instead of ASWebAuthenticationSession, which lacks the localStorage needed by GoToSocial's settings panel
 
 ## Contributing Bug Reports
 

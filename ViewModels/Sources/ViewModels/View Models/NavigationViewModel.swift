@@ -107,19 +107,31 @@ public extension NavigationViewModel {
     }
 
     func navigateToEditProfile(instanceURI: String) {
-        guard let editProfileURL = editProfileURL(instanceURI: instanceURI) else { return }
+        let version = identityContext.identity.instance?.version
+        guard let editProfileURL = editProfileURL(instanceURI: instanceURI, version: version) else { return }
 
-        AuthenticatedWebViewService(environment: environment).authenticatedWebViewPublisher(url: editProfileURL)
-            .sink { _ in } receiveValue: { _ in }
-            .store(in: &cancellables)
+        if isGoToSocial(version: version) {
+            presentingSecondaryNavigation = false
+            navigationsSubject.send(.url(editProfileURL))
+        } else {
+            AuthenticatedWebViewService(environment: environment).authenticatedWebViewPublisher(url: editProfileURL)
+                .sink { _ in } receiveValue: { _ in }
+                .store(in: &cancellables)
+        }
     }
 
     func navigateToAccountSettings(instanceURI: String) {
-        guard let accountSettingsURL = accountSettingsURL(instanceURI: instanceURI) else { return }
+        let version = identityContext.identity.instance?.version
+        guard let accountSettingsURL = accountSettingsURL(instanceURI: instanceURI, version: version) else { return }
 
-        AuthenticatedWebViewService(environment: environment).authenticatedWebViewPublisher(url: accountSettingsURL)
-            .sink { _ in } receiveValue: { _ in }
-            .store(in: &cancellables)
+        if isGoToSocial(version: version) {
+            presentingSecondaryNavigation = false
+            navigationsSubject.send(.url(accountSettingsURL))
+        } else {
+            AuthenticatedWebViewService(environment: environment).authenticatedWebViewPublisher(url: accountSettingsURL)
+                .sink { _ in } receiveValue: { _ in }
+                .store(in: &cancellables)
+        }
     }
 
     func navigate(timeline: Timeline) {
@@ -223,19 +235,25 @@ public extension NavigationViewModel {
 }
 
 private extension NavigationViewModel {
-    func accountSettingsURL(instanceURI: String) -> URL? {
+    func isGoToSocial(version: String?) -> Bool {
+        version?.localizedCaseInsensitiveContains("GoToSocial") ?? false
+    }
+
+    func accountSettingsURL(instanceURI: String, version: String?) -> URL? {
+        let path = isGoToSocial(version: version) ? "/settings" : "/auth/edit"
         if instanceURI.hasPrefix("https://") {
-            return URL(string: "\(instanceURI)/auth/edit")
+            return URL(string: "\(instanceURI)\(path)")
         } else {
-            return URL(string: "https://\(instanceURI)/auth/edit")
+            return URL(string: "https://\(instanceURI)\(path)")
         }
     }
 
-    func editProfileURL(instanceURI: String) -> URL? {
+    func editProfileURL(instanceURI: String, version: String?) -> URL? {
+        let path = isGoToSocial(version: version) ? "/settings/user/profile" : "/settings/profile"
         if instanceURI.hasPrefix("https://") {
-            return URL(string: "\(instanceURI)/settings/profile")
+            return URL(string: "\(instanceURI)\(path)")
         } else {
-            return URL(string: "https://\(instanceURI)/settings/profile")
+            return URL(string: "https://\(instanceURI)\(path)")
         }
     }
 }
