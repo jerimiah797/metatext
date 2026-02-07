@@ -7,7 +7,7 @@ import Mastodon
 extension Relationship: ContentDatabaseRecord {}
 
 extension Relationship {
-    enum Columns: String, ColumnExpression {
+    public enum Columns: String, ColumnExpression {
         case id
         case following
         case requested

@@ -12,7 +12,7 @@ public extension AccountList {
 }
 
 extension AccountList {
-    enum Columns {
+    public enum Columns {
         static let id = Column(CodingKeys.id)
     }
 

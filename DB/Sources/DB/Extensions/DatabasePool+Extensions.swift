@@ -19,7 +19,7 @@ extension DatabasePool {
                 var configuration = Configuration()
 
                 configuration.busyMode = .timeout(5)
-                configuration.defaultTransactionKind = .immediate
+                // GRDB 7: defaultTransactionKind removed; DatabasePool uses IMMEDIATE by default
                 configuration.observesSuspensionNotifications = true
                 configuration.prepareDatabase { db in
                     try db.usePassphrase(passphrase())

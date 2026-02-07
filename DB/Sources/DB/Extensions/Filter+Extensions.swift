@@ -7,7 +7,7 @@ import Mastodon
 extension Filter: ContentDatabaseRecord {}
 
 extension Filter {
-    enum Columns: String, ColumnExpression {
+    public enum Columns: String, ColumnExpression {
         case id
         case phrase
         case context

@@ -138,10 +138,18 @@ public extension IdentityDatabase {
     }
 
     func identityPublisher(id: Identity.Id, immediate: Bool) -> AnyPublisher<Identity, Error> {
-        ValueObservation.tracking(
+        let observation = ValueObservation.tracking(
             IdentityInfo.request(IdentityRecord.filter(IdentityRecord.Columns.id == id)).fetchOne)
             .removeDuplicates()
-            .publisher(in: databaseWriter, scheduling: immediate ? .immediate : .async(onQueue: .main))
+
+        let base: AnyPublisher<IdentityInfo?, Error>
+        if immediate {
+            base = observation.publisher(in: databaseWriter, scheduling: .immediate).eraseToAnyPublisher()
+        } else {
+            base = observation.publisher(in: databaseWriter, scheduling: .async(onQueue: .main)).eraseToAnyPublisher()
+        }
+
+        return base
             .tryMap {
                 guard let info = $0 else { throw IdentityDatabaseError.identityNotFound }
 

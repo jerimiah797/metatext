@@ -7,7 +7,7 @@ import Mastodon
 extension Announcement: ContentDatabaseRecord {}
 
 extension Announcement {
-    enum Columns: String, ColumnExpression {
+    public enum Columns: String, ColumnExpression {
         case id
         case content
         case startsAt

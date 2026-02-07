@@ -11,7 +11,7 @@ public struct EmojiUse: ContentDatabaseRecord, Hashable {
 }
 
 extension EmojiUse {
-    enum Columns {
+    public enum Columns {
         static let emoji = Column(CodingKeys.emoji)
         static let system = Column(CodingKeys.system)
         static let lastUse = Column(CodingKeys.lastUse)
