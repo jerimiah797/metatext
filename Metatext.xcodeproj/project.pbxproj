@@ -1633,10 +1633,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Supporting Files/Metatext.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 82HL67AXQ2;
+				DEVELOPMENT_TEAM = 3QUH73KW5Q;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -1645,8 +1646,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.metabolist.metatext;
+				PRODUCT_BUNDLE_IDENTIFIER = org.arctian.metatext;
 				PRODUCT_NAME = Metatext;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
@@ -1661,10 +1663,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Supporting Files/Metatext.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 82HL67AXQ2;
+				DEVELOPMENT_TEAM = 3QUH73KW5Q;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -1673,8 +1676,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.metabolist.metatext;
+				PRODUCT_BUNDLE_IDENTIFIER = org.arctian.metatext;
 				PRODUCT_NAME = Metatext;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
@@ -1747,7 +1751,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.metabolist.metatext.share-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.arctian.metatext.share-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1774,7 +1778,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.metabolist.metatext.share-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.arctian.metatext.share-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1801,7 +1805,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.metabolist.metatext.notification-service-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.arctian.metatext.notification-service-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1826,7 +1830,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.metabolist.metatext.notification-service-extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.arctian.metatext.notification-service-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
