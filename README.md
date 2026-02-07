@@ -1,12 +1,15 @@
-# Metatext
+# Metatext (Unofficial Fork)
 
 A free, open-source iOS Mastodon client.
 
-[![Download on the App Store](https://metabolist.org/assets/images/download_on_the_app_store.svg)](https://apps.apple.com/us/app/metatext/id1523996615?mt=8)
+> **Note:** This is an unofficial fork of [metabolist/metatext](https://github.com/metabolist/metatext) with bug fixes and compatibility updates. It is not available on the App Store. The upstream project is archived and seeking a maintainer.
 
-## Seeking Maintainers
+## Changes in this fork
 
-Development of this project is currently paused. Email info@metabolist.org if you or your organization are interested in taking ownership of the project.
+- **Xcode 26 / Swift 6 compatibility** — builds and runs on the latest toolchain
+- **GRDB dependency updated** — uses a [forked GRDB](https://github.com/jerimiah797/GRDB.swift) with Swift 6 fixes
+- **Fixed crash on posts with unparseable URLs** — empty or malformed URLs from remote instances (commonly custom emoji) no longer cause the entire timeline or post detail to fail to load (NSURLErrorDomain -1000)
+- **Fixed Sendable conformance warnings** for Swift 6
 
 ## Contributing Bug Reports
 
