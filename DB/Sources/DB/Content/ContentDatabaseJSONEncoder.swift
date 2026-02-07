@@ -3,7 +3,7 @@
 import Foundation
 import Mastodon
 
-final class ContentDatabaseJSONEncoder: JSONEncoder {
+final class ContentDatabaseJSONEncoder: JSONEncoder, @unchecked Sendable {
     override init() {
         super.init()
 

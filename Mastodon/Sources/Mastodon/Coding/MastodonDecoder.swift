@@ -2,7 +2,7 @@
 
 import Foundation
 
-public final class MastodonDecoder: JSONDecoder {
+public final class MastodonDecoder: JSONDecoder, @unchecked Sendable {
     public override init() {
         super.init()
 
