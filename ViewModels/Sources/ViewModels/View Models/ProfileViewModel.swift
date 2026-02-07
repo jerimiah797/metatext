@@ -16,6 +16,9 @@ final public class ProfileViewModel {
     private let accountEventsSubject: PassthroughSubject<AnyPublisher<CollectionItemEvent, Error>, Never>
     private let imagePresentationsSubject = PassthroughSubject<URL, Never>()
     private var cancellables = Set<AnyCancellable>()
+    private var retryCancellable: AnyCancellable?
+    private var retryCount = 0
+    private var didFinalRetry = false
 
     public init(profileService: ProfileService, identityContext: IdentityContext) {
         self.profileService = profileService
@@ -75,6 +78,11 @@ public extension ProfileViewModel {
 
     func fetchProfile() -> AnyPublisher<Never, Never> {
         profileService.fetchProfile().assignErrorsToAlertItem(to: \.alertItem, on: self)
+    }
+
+    func cancelProfileRetry() {
+        retryCancellable?.cancel()
+        retryCancellable = nil
     }
 
     func sendDirectMessage() {
@@ -156,6 +164,15 @@ extension ProfileViewModel: CollectionViewModel {
         }
 
         collectionViewModel.value.request(maxId: maxId, minId: minId, search: nil)
+
+        // For initial profile status loads, retry if the server returns empty results.
+        // GoToSocial fetches remote profiles asynchronously, so the first request
+        // may return 0 statuses even though the account has posts.
+        if maxId == nil, case .statuses = collection {
+            retryCount = 0
+            didFinalRetry = false
+            scheduleProfileRetryIfNeeded()
+        }
     }
 
     public func cancelRequests() {
@@ -188,5 +205,54 @@ extension ProfileViewModel: CollectionViewModel {
 
     public func applyAccountListEdit(viewModel: AccountViewModel, edit: CollectionItemEvent.AccountListEdit) {
         collectionViewModel.value.applyAccountListEdit(viewModel: viewModel, edit: edit)
+    }
+}
+
+private extension ProfileViewModel {
+    static let profileRetryDelay: TimeInterval = 2
+    static let profileFinalRetryDelay: TimeInterval = 5
+    static let profileMaxRetries = 3
+
+    func scheduleProfileRetryIfNeeded() {
+        retryCancellable?.cancel()
+
+        let currentCollectionVM = collectionViewModel.value
+
+        retryCancellable = currentCollectionVM.loading
+            .filter { !$0 }
+            .first()
+            .delay(for: .seconds(Self.profileRetryDelay), scheduler: DispatchQueue.main)
+            .flatMap { _ in currentCollectionVM.updates.first() }
+            .sink { [weak self] update in
+                guard let self = self,
+                      let statusesCount = self.accountViewModel?.statusesCount,
+                      statusesCount > 0
+                else { return }
+
+                let hasItems = !update.sections.flatMap(\.items).isEmpty
+
+                if !hasItems, self.retryCount < Self.profileMaxRetries {
+                    // Still empty — keep retrying
+                    self.retryCount += 1
+                    self.collectionViewModel.value.request(maxId: nil, minId: nil, search: nil)
+                    self.scheduleProfileRetryIfNeeded()
+                } else if hasItems, !self.didFinalRetry {
+                    // Got results — do one more request after a longer delay
+                    // to catch any posts still trickling in from remote servers
+                    self.didFinalRetry = true
+                    self.scheduleFinalRetry()
+                }
+            }
+    }
+
+    func scheduleFinalRetry() {
+        retryCancellable?.cancel()
+
+        retryCancellable = Just(())
+            .delay(for: .seconds(Self.profileFinalRetryDelay), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.collectionViewModel.value.request(maxId: nil, minId: nil, search: nil)
+            }
     }
 }

@@ -3,6 +3,8 @@
 A free, open-source iOS Mastodon client.
 
 > **Note:** This is an unofficial fork of [metabolist/metatext](https://github.com/metabolist/metatext) with bug fixes and compatibility updates. It is not available on the App Store. The upstream project is archived and seeking a maintainer.
+>
+> This fork is tested against [GoToSocial](https://gotosocial.org/) as well as Mastodon servers.
 
 ## Changes in this fork
 
@@ -10,6 +12,7 @@ A free, open-source iOS Mastodon client.
 - **GRDB dependency updated** — uses a [forked GRDB](https://github.com/jerimiah797/GRDB.swift) with Swift 6 fixes
 - **Fixed crash on posts with unparseable URLs** — empty or malformed URLs from remote instances (commonly custom emoji) no longer cause the entire timeline or post detail to fail to load (NSURLErrorDomain -1000)
 - **Fixed Sendable conformance warnings** for Swift 6
+- **Improved remote profile loading** — when visiting a profile hosted on another instance, posts now load automatically via retry instead of requiring the user to back out and reload (particularly noticeable with GoToSocial servers, which fetch remote content asynchronously)
 
 ## Contributing Bug Reports
 
