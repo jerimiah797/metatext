@@ -3,6 +3,7 @@
 import Combine
 import Foundation
 import Mastodon
+import os.log
 import ServiceLayer
 
 public final class NewStatusViewModel: ObservableObject {
@@ -20,6 +21,8 @@ public final class NewStatusViewModel: ObservableObject {
     private let environment: AppEnvironment
     private let eventsSubject = PassthroughSubject<Event, Never>()
     private let compositionEventsSubject = PassthroughSubject<CompositionViewModel.Event, Never>()
+    private let pendingDeleteId: Status.Id?
+    private let identityServiceForDelete: IdentityService?
     private var cancellables = Set<AnyCancellable>()
 
     // swiftlint:disable:next function_body_length
@@ -30,10 +33,15 @@ public final class NewStatusViewModel: ObservableObject {
                 inReplyTo: StatusViewModel?,
                 redraft: Status?,
                 directMessageTo: AccountViewModel?,
-                extensionContext: NSExtensionContext?) {
+                extensionContext: NSExtensionContext?,
+                pendingDeleteId: Status.Id? = nil,
+                redraftSourceText: String? = nil,
+                redraftSourceSpoilerText: String? = nil) {
         self.allIdentitiesService = allIdentitiesService
         self.identityContext = identityContext
         self.environment = environment
+        self.pendingDeleteId = pendingDeleteId
+        self.identityServiceForDelete = pendingDeleteId != nil ? identityContext.service : nil
         inReplyToViewModel = inReplyTo
         events = eventsSubject.eraseToAnyPublisher()
         visibility = redraft?.visibility
@@ -57,7 +65,9 @@ public final class NewStatusViewModel: ObservableObject {
             compositionViewModel = CompositionViewModel(
                 eventsSubject: compositionEventsSubject,
                 redraft: redraft,
-                identityContext: identityContext)
+                identityContext: identityContext,
+                sourceText: redraftSourceText,
+                sourceSpoilerText: redraftSourceSpoilerText)
         } else if let extensionContext = extensionContext {
             compositionViewModel = CompositionViewModel(
                 eventsSubject: compositionEventsSubject,
@@ -103,6 +113,15 @@ public final class NewStatusViewModel: ObservableObject {
 
         if let identity = identity {
             setIdentity(identity)
+        }
+
+        os_log("[Redraft] Compose opened with pendingDeleteId: %{public}@",
+               pendingDeleteId?.description ?? "nil")
+    }
+
+    deinit {
+        if let pendingDeleteId = pendingDeleteId, postingState != .done {
+            os_log("[Redraft] Compose cancelled, original status %{public}@ preserved", pendingDeleteId)
         }
     }
 }
@@ -233,6 +252,7 @@ private extension NewStatusViewModel {
                 case .finished:
                     if self.compositionViewModels.allSatisfy(\.isPosted) {
                         self.postingState = .done
+                        self.performDeferredDeleteIfNeeded()
                     }
                 case let .failure(error):
                     self.alertItem = AlertItem(error: error)
@@ -247,6 +267,25 @@ private extension NewStatusViewModel {
                     self.post(viewModel: unposted, inReplyToId: $0)
                 }
             }
+            .store(in: &cancellables)
+    }
+
+    func performDeferredDeleteIfNeeded() {
+        guard let pendingDeleteId = pendingDeleteId,
+              let identityService = identityServiceForDelete
+        else { return }
+
+        os_log("[Redraft] Post succeeded, deleting original status %{public}@", pendingDeleteId)
+
+        identityService.deleteStatus(id: pendingDeleteId)
+            .sink { completion in
+                switch completion {
+                case .finished:
+                    os_log("[Redraft] Deferred delete completed")
+                case let .failure(error):
+                    os_log("[Redraft] Deferred delete failed: %{public}@", String(describing: error))
+                }
+            } receiveValue: { _ in }
             .store(in: &cancellables)
     }
 }

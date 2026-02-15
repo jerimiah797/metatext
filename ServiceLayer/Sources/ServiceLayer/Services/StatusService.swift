@@ -5,6 +5,13 @@ import DB
 import Foundation
 import Mastodon
 import MastodonAPI
+import os.log
+
+public struct RedraftSourceResult {
+    public let status: Status
+    public let source: StatusSource
+    public let inReplyToService: StatusService?
+}
 
 public struct StatusService {
     public let status: Status
@@ -112,6 +119,39 @@ public extension StatusService {
         return mastodonAPIClient.request(StatusEndpoint.delete(id: status.displayStatus.id))
             .flatMap { status in contentDatabase.delete(id: status.id).collect().map { _ in status } }
             .zip(inReplyToPublisher.setFailureType(to: Error.self))
+            .eraseToAnyPublisher()
+    }
+
+    func fetchForRedraft() -> AnyPublisher<RedraftSourceResult, Error> {
+        let inReplyToPublisher: AnyPublisher<Self?, Never>
+
+        if let inReplyToId = status.displayStatus.inReplyToId {
+            inReplyToPublisher = mastodonAPIClient.request(StatusEndpoint.status(id: inReplyToId))
+                .map {
+                    Self(environment: environment,
+                         status: $0,
+                         mastodonAPIClient: mastodonAPIClient,
+                         contentDatabase: contentDatabase) as Self?
+                }
+                .replaceError(with: nil)
+                .eraseToAnyPublisher()
+        } else {
+            inReplyToPublisher = Just(nil).eraseToAnyPublisher()
+        }
+
+        let capturedStatus = status
+        return mastodonAPIClient.request(StatusSourceEndpoint.source(id: status.displayStatus.id))
+            .map { source in
+                os_log("[Redraft] Source fetch succeeded, text length: %d", source.text.count)
+                return source
+            }
+            .zip(inReplyToPublisher.setFailureType(to: Error.self))
+            .map { source, inReplyTo in
+                RedraftSourceResult(
+                    status: capturedStatus,
+                    source: source,
+                    inReplyToService: inReplyTo)
+            }
             .eraseToAnyPublisher()
     }
 

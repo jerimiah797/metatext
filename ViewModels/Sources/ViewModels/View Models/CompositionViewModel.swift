@@ -3,6 +3,7 @@
 import Combine
 import Foundation
 import Mastodon
+import os.log
 import ServiceLayer
 import UniformTypeIdentifiers
 
@@ -130,16 +131,26 @@ public extension CompositionViewModel {
 
     convenience init(eventsSubject: PassthroughSubject<Event, Never>,
                      redraft: Status,
-                     identityContext: IdentityContext) {
+                     identityContext: IdentityContext,
+                     sourceText: String? = nil,
+                     sourceSpoilerText: String? = nil) {
         self.init(eventsSubject: eventsSubject,
                   maxCharacters: identityContext.identity.instance?.maxTootChars)
 
-        if let text = redraft.text {
+        let hasSource = sourceText != nil
+        let hasRedraftText = redraft.text != nil
+        os_log("[Redraft] Populated editor — sourceText: %{public}@, redraft.text: %{public}@",
+               hasSource ? "yes" : "no", hasRedraftText ? "yes" : "no")
+
+        if let sourceText = sourceText {
+            text = sourceText
+        } else if let text = redraft.text {
             self.text = text
         }
 
-        contentWarning = redraft.spoilerText
-        displayContentWarning = !redraft.spoilerText.isEmpty
+        let spoiler = sourceSpoilerText ?? redraft.spoilerText
+        contentWarning = spoiler
+        displayContentWarning = !spoiler.isEmpty
         sensitive = redraft.sensitive
         displayPoll = redraft.poll != nil
         attachmentViewModels = redraft.mediaAttachments.map {

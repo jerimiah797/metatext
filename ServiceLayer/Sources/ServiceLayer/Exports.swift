@@ -15,4 +15,5 @@ public typealias ReportElements = ReportEndpoint.Elements
 public typealias Search = ResultsEndpoint.Search
 public typealias SearchScope = DB.SearchScope
 public typealias StatusComponents = StatusEndpoint.Components
+public typealias StatusSource = MastodonAPI.StatusSource
 public typealias Timeline = DB.Timeline

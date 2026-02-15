@@ -3,6 +3,7 @@
 import Combine
 import Foundation
 import Mastodon
+import os.log
 import ServiceLayer
 
 public final class StatusViewModel: AttachmentsRenderingViewModel, ObservableObject {
@@ -326,13 +327,16 @@ public extension StatusViewModel {
     func deleteAndRedraft() {
         let identityContext = self.identityContext
         let isContextParent = configuration.isContextParent
+        let statusId = statusService.status.displayStatus.id
+
+        os_log("[Redraft] Attempting non-destructive source fetch for status %{public}@", statusId)
 
         eventsSubject.send(
-            statusService.deleteAndRedraft()
-                .map { redraft, inReplyToStatusService in
+            statusService.fetchForRedraft()
+                .map { result -> CollectionItemEvent in
                     let inReplyToViewModel: StatusViewModel?
 
-                    if let inReplyToStatusService = inReplyToStatusService {
+                    if let inReplyToStatusService = result.inReplyToService {
                         inReplyToViewModel = Self(
                             statusService: inReplyToStatusService,
                             identityContext: identityContext,
@@ -343,8 +347,37 @@ public extension StatusViewModel {
                     }
 
                     return .compose(inReplyTo: inReplyToViewModel,
-                                    redraft: redraft,
-                                    redraftWasContextParent: isContextParent)
+                                    redraft: result.status,
+                                    redraftWasContextParent: isContextParent,
+                                    pendingDeleteId: statusId,
+                                    redraftSourceText: result.source.text,
+                                    redraftSourceSpoilerText: result.source.spoilerText)
+                }
+                .catch { [statusService] error -> AnyPublisher<CollectionItemEvent, Error> in
+                    os_log("[Redraft] Source fetch failed (%{public}@), falling back to destructive delete",
+                           String(describing: error))
+
+                    return statusService.deleteAndRedraft()
+                        .map { redraft, inReplyToStatusService in
+                            let inReplyToViewModel: StatusViewModel?
+
+                            if let inReplyToStatusService = inReplyToStatusService {
+                                inReplyToViewModel = Self(
+                                    statusService: inReplyToStatusService,
+                                    identityContext: identityContext,
+                                    eventsSubject: .init())
+                                inReplyToViewModel?.configuration =
+                                    CollectionItem.StatusConfiguration.default.reply()
+                            } else {
+                                inReplyToViewModel = nil
+                            }
+
+                            return CollectionItemEvent.compose(
+                                inReplyTo: inReplyToViewModel,
+                                redraft: redraft,
+                                redraftWasContextParent: isContextParent)
+                        }
+                        .eraseToAnyPublisher()
                 }
                 .eraseToAnyPublisher())
     }

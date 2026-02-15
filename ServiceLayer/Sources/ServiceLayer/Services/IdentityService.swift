@@ -248,6 +248,12 @@ public extension IdentityService {
         mastodonAPIClient.request(StatusEndpoint.post(statusComponents)).map(\.id).eraseToAnyPublisher()
     }
 
+    func deleteStatus(id: Status.Id) -> AnyPublisher<Never, Error> {
+        mastodonAPIClient.request(StatusEndpoint.delete(id: id))
+            .flatMap { contentDatabase.delete(id: $0.id) }
+            .eraseToAnyPublisher()
+    }
+
     func notificationService(pushNotification: PushNotification) -> AnyPublisher<NotificationService, Error> {
         mastodonAPIClient.request(NotificationEndpoint.notification(id: .init(pushNotification.notificationId)))
             .flatMap { notification in

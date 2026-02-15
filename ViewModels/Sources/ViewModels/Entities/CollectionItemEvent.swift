@@ -16,7 +16,10 @@ public enum CollectionItemEvent {
                  inReplyTo: StatusViewModel? = nil,
                  redraft: Status? = nil,
                  redraftWasContextParent: Bool = false,
-                 directMessageTo: AccountViewModel? = nil)
+                 directMessageTo: AccountViewModel? = nil,
+                 pendingDeleteId: Status.Id? = nil,
+                 redraftSourceText: String? = nil,
+                 redraftSourceSpoilerText: String? = nil)
     case confirmDelete(StatusViewModel, redraft: Bool)
     case confirmUnfollow(AccountViewModel)
     case confirmHideReblogs(AccountViewModel)

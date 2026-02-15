@@ -553,12 +553,16 @@ private extension TableViewController {
             presentEmojiPicker(sourceViewTag: sourceViewTag, selectionAction: selectionAction)
         case let .attachment(attachmentViewModel, statusViewModel):
             present(attachmentViewModel: attachmentViewModel, statusViewModel: statusViewModel)
-        case let .compose(identity, inReplyToViewModel, redraft, redraftWasContextParent, directMessageTo):
+        case let .compose(identity, inReplyToViewModel, redraft, redraftWasContextParent, directMessageTo,
+                          pendingDeleteId, redraftSourceText, redraftSourceSpoilerText):
             compose(identity: identity,
                     inReplyToViewModel: inReplyToViewModel,
                     redraft: redraft,
                     redraftWasContextParent: redraftWasContextParent,
-                    directMessageTo: directMessageTo)
+                    directMessageTo: directMessageTo,
+                    pendingDeleteId: pendingDeleteId,
+                    redraftSourceText: redraftSourceText,
+                    redraftSourceSpoilerText: redraftSourceSpoilerText)
         case let .confirmDelete(statusViewModel, redraft):
             confirmDelete(statusViewModel: statusViewModel, redraft: redraft)
         case let .confirmUnfollow(accountViewModel):
@@ -675,7 +679,10 @@ private extension TableViewController {
                  inReplyToViewModel: StatusViewModel?,
                  redraft: Status?,
                  redraftWasContextParent: Bool,
-                 directMessageTo: AccountViewModel?) {
+                 directMessageTo: AccountViewModel?,
+                 pendingDeleteId: Status.Id? = nil,
+                 redraftSourceText: String? = nil,
+                 redraftSourceSpoilerText: String? = nil) {
         if redraftWasContextParent {
             navigationController?.popViewController(animated: true)
         }
@@ -685,7 +692,10 @@ private extension TableViewController {
             identity: identity,
             inReplyTo: inReplyToViewModel,
             redraft: redraft,
-            directMessageTo: directMessageTo)
+            directMessageTo: directMessageTo,
+            pendingDeleteId: pendingDeleteId,
+            redraftSourceText: redraftSourceText,
+            redraftSourceSpoilerText: redraftSourceSpoilerText)
     }
 
     func confirmDelete(statusViewModel: StatusViewModel, redraft: Bool) {

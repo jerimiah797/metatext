@@ -68,7 +68,10 @@ public extension RootViewModel {
         identity: Identity? = nil,
         inReplyTo: StatusViewModel? = nil,
         redraft: Status? = nil,
-        directMessageTo: AccountViewModel? = nil) -> NewStatusViewModel {
+        directMessageTo: AccountViewModel? = nil,
+        pendingDeleteId: Status.Id? = nil,
+        redraftSourceText: String? = nil,
+        redraftSourceSpoilerText: String? = nil) -> NewStatusViewModel {
         NewStatusViewModel(
             allIdentitiesService: allIdentitiesService,
             identityContext: identityContext,
@@ -77,7 +80,10 @@ public extension RootViewModel {
             inReplyTo: inReplyTo,
             redraft: redraft,
             directMessageTo: directMessageTo,
-            extensionContext: nil)
+            extensionContext: nil,
+            pendingDeleteId: pendingDeleteId,
+            redraftSourceText: redraftSourceText,
+            redraftSourceSpoilerText: redraftSourceSpoilerText)
     }
 }
 
