@@ -27,6 +27,10 @@ extension AppDelegate: UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         self.application = application
 
+        #if DEBUG
+        configureDebugLogging()
+        #endif
+
         configureGlobalAppearance()
 
         return true
@@ -44,6 +48,17 @@ extension AppDelegate: UIApplicationDelegate {
 }
 
 private extension AppDelegate {
+    func configureDebugLogging() {
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let logPath = documentsPath.appendingPathComponent("debug.log")
+
+        // Redirect stderr (where NSLog writes) to our log file
+        freopen(logPath.path.cString(using: .utf8), "a+", stderr)
+
+        NSLog("[DEBUG-LOG] Logging redirected to: %@", logPath.path)
+        NSLog("[DEBUG-LOG] Documents directory: %@", documentsPath.path)
+    }
+
     func configureGlobalAppearance() {
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
