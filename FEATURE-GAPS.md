@@ -1,18 +1,15 @@
 # Metatext Feature Gaps
 
 Analysis of Mastodon 4.x and GoToSocial features not yet supported in this fork.
-Last updated: 2026-02-16.
+Last updated: 2026-02-17.
 
 ## Critical / High Priority
 
 | Feature | Since | Notes |
 |---|---|---|
-| **Status editing** | Mastodon 3.5 | No `PUT /api/v1/statuses/:id`, no edit history, no `editedAt` |
 | **Server-side filters v2** | Mastodon 4.0 | Still on v1 API; `Status.filtered` field absent — posts aren't filtered |
 | **Hashtag following** | Mastodon 4.0 | No follow/unfollow tags, no followed tags timeline management |
 | **Status translation** | Mastodon 4.0 | No translate endpoint at all |
-| **`update` notification type** | Mastodon 3.5 | "Post you boosted was edited" — falls to `.unknown` |
-| **Push `notificationId` is `Int`** | GoToSocial bug | GoToSocial uses alphanumeric IDs — push notifications silently fail |
 | **Local-only post visibility** | GoToSocial/Glitch | No `local_only` visibility in compose or display |
 | **Interaction policies** | GoToSocial 0.17+ | `interactionPolicy` on statuses completely ignored |
 
@@ -44,3 +41,6 @@ Last updated: 2026-02-16.
 | GoToSocial settings URLs | `/user/settings` vs Mastodon's `/settings/...` |
 | GoToSocial trends | Skip `/trends` API call for GTS instances |
 | Hybrid search | Federated search no longer cancels local results |
+| **Status editing** | `PUT /api/v1/statuses/:id`, "Edited" label, `editedAt` persisted in DB |
+| **`update` notification type** | Handled in `NotificationPreferencesView` exhaustive switch |
+| **Push `notificationId` is `Int`** | GoToSocial alphanumeric IDs now decoded as `String` |
