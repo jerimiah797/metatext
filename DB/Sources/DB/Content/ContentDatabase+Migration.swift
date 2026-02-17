@@ -296,6 +296,12 @@ extension ContentDatabase {
             }
         }
 
+        migrator.registerMigration("2.0.0-status-edited-at") { db in
+            try db.alter(table: "statusRecord") { t in
+                t.add(column: "editedAt", .datetime)
+            }
+        }
+
         return migrator
     }
 }

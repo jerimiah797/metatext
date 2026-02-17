@@ -70,6 +70,7 @@ public extension RootViewModel {
         redraft: Status? = nil,
         directMessageTo: AccountViewModel? = nil,
         pendingDeleteId: Status.Id? = nil,
+        editStatusId: Status.Id? = nil,
         redraftSourceText: String? = nil,
         redraftSourceSpoilerText: String? = nil) -> NewStatusViewModel {
         NewStatusViewModel(
@@ -82,6 +83,7 @@ public extension RootViewModel {
             directMessageTo: directMessageTo,
             extensionContext: nil,
             pendingDeleteId: pendingDeleteId,
+            editStatusId: editStatusId,
             redraftSourceText: redraftSourceText,
             redraftSourceSpoilerText: redraftSourceSpoilerText)
     }

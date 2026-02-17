@@ -58,6 +58,8 @@ extension MastodonNotification.NotificationType {
             return "preferences.notification-types.follow-request"
         case .status:
             return "preferences.notification-types.status"
+        case .update:
+            return ""
         case .unknown:
             return ""
         }
@@ -77,6 +79,8 @@ extension MastodonNotification.NotificationType {
             return "chart.bar.xaxis"
         case .status:
             return "bell.fill"
+        case .update:
+            return "pencil"
         case .unknown:
             return "app.badge"
         }

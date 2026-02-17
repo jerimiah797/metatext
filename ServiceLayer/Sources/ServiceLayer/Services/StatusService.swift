@@ -155,6 +155,10 @@ public extension StatusService {
             .eraseToAnyPublisher()
     }
 
+    func edit(components: StatusComponents) -> AnyPublisher<Status, Error> {
+        mastodonAPIClient.request(StatusEndpoint.edit(id: status.displayStatus.id, components))
+    }
+
     func rebloggedByService() -> AccountListService {
         AccountListService(
             endpoint: .rebloggedBy(id: status.id),

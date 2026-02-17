@@ -248,6 +248,14 @@ public extension IdentityService {
         mastodonAPIClient.request(StatusEndpoint.post(statusComponents)).map(\.id).eraseToAnyPublisher()
     }
 
+    func editStatus(id: Status.Id, components: StatusComponents) -> AnyPublisher<Status, Error> {
+        mastodonAPIClient.request(StatusEndpoint.edit(id: id, components))
+            .flatMap { [contentDatabase] status in
+                contentDatabase.insert(status: status).collect().map { _ in status }
+            }
+            .eraseToAnyPublisher()
+    }
+
     func deleteStatus(id: Status.Id) -> AnyPublisher<Never, Error> {
         mastodonAPIClient.request(StatusEndpoint.delete(id: id))
             .flatMap { contentDatabase.delete(id: $0.id) }

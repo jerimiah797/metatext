@@ -60,6 +60,7 @@ private extension Status {
             reblogged: record.reblogged,
             muted: record.muted,
             bookmarked: record.bookmarked,
-            pinned: record.pinned)
+            pinned: record.pinned,
+            editedAt: record.editedAt)
     }
 }

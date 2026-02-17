@@ -18,6 +18,7 @@ public enum CollectionItemEvent {
                  redraftWasContextParent: Bool = false,
                  directMessageTo: AccountViewModel? = nil,
                  pendingDeleteId: Status.Id? = nil,
+                 editStatusId: Status.Id? = nil,
                  redraftSourceText: String? = nil,
                  redraftSourceSpoilerText: String? = nil)
     case confirmDelete(StatusViewModel, redraft: Bool)
