@@ -34,6 +34,18 @@ public class CollectionItemsViewModel: ObservableObject {
                 ? .expand : .hidden)
 
         collectionService.sections
+            .handleEvents(receiveOutput: { sections in
+                let totalItems = sections.reduce(0) { $0 + $1.items.count }
+                let hash = sections.hashValue
+                NSLog("[VIEWMODEL-TRACE] collectionService.sections emitted (sections: %d, items: %d, hash: %d)",
+                      sections.count, totalItems, hash)
+            })
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { sections in
+                let totalItems = sections.reduce(0) { $0 + $1.items.count }
+                NSLog("[VIEWMODEL-TRACE] After viewmodel removeDuplicates (sections: %d, items: %d)",
+                      sections.count, totalItems)
+            })
             .handleEvents(receiveOutput: { [weak self] in self?.process(sections: $0) })
             .receive(on: DispatchQueue.main)
             .assignErrorsToAlertItem(to: \.alertItem, on: self)
@@ -411,10 +423,14 @@ private extension CollectionItemsViewModel {
         let items = sections.map(\.items).reduce([], +)
         let itemsSet = Set(items)
 
+        NSLog("[VIEWMODEL-TRACE] process(sections:) called (sections: %d, items: %d)", sections.count, items.count)
+
         self.lastUpdate = .init(
             sections: sections,
             maintainScrollPositionItemId: idForScrollPositionMaintenance(newSections: sections),
             shouldAdjustContentInset: lastUpdateWasContextParentOnly && items.count > 1)
+
+        NSLog("[VIEWMODEL-TRACE] lastUpdate set - will trigger @Published")
 
         viewModelCache = viewModelCache.filter { itemsSet.contains($0.key) }
     }
