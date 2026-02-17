@@ -52,11 +52,15 @@ private extension AppDelegate {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let logPath = documentsPath.appendingPathComponent("debug.log")
 
-        // Redirect stderr (where NSLog writes) to our log file
+        // Redirect both stdout (print) and stderr (NSLog) to our log file
+        freopen(logPath.path.cString(using: .utf8), "a+", stdout)
         freopen(logPath.path.cString(using: .utf8), "a+", stderr)
 
-        NSLog("[DEBUG-LOG] Logging redirected to: %@", logPath.path)
-        NSLog("[DEBUG-LOG] Documents directory: %@", documentsPath.path)
+        // Disable stdout buffering so print() flushes immediately (like stderr/NSLog)
+        setbuf(stdout, nil)
+
+        print("[DEBUG-LOG] Logging redirected to: \(logPath.path)")
+        print("[DEBUG-LOG] Documents directory: \(documentsPath.path)")
     }
 
     func configureGlobalAppearance() {

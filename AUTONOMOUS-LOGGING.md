@@ -6,57 +6,81 @@ This document explains the autonomous logging system built for Metatext to enabl
 
 Traditional iOS logging approaches have limitations for autonomous debugging:
 - **Xcode console**: Requires human to manually view and copy/paste logs
-- **`os_log`/NSLog via unified logging**: Requires root privileges or special entitlements to read programmatically
-- **`print()` to stdout**: Only captured when debugger is attached
+- **`os_log` via unified logging**: Requires root privileges or special entitlements to read programmatically
+- **`print()` to stdout**: Only captured when debugger is attached (without special setup)
 - **Console.app**: Requires manual GUI interaction
 
-**Goal**: Enable autonomous agents (like Quern) to programmatically capture NSLog output without requiring humans to manually extract logs from Xcode or Console.app.
+**Goal**: Enable autonomous agents (like Quern) to programmatically capture app logs without requiring humans to manually extract logs from Xcode or Console.app.
 
 ## Solution: In-App File Redirection
 
 ### How It Works
 
-NSLog writes to `stderr` (file descriptor 2). By redirecting stderr to a file we control, all NSLog output automatically goes to a file that can be read programmatically.
+`NSLog` writes to `stderr` (file descriptor 2) and `print()` writes to `stdout` (file descriptor 1). By redirecting these file descriptors to a file we control, all output automatically goes to a file that can be read programmatically.
 
 ### Implementation
 
 **File**: `System/AppDelegate.swift`
 
 ```swift
-extension AppDelegate: UIApplicationDelegate {
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        self.application = application
-
-        #if DEBUG
-        configureDebugLogging()
-        #endif
-
-        configureGlobalAppearance()
-        return true
-    }
-}
-
 private extension AppDelegate {
     func configureDebugLogging() {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let logPath = documentsPath.appendingPathComponent("debug.log")
 
-        // Redirect stderr (where NSLog writes) to our log file
+        // Redirect both stdout (print) and stderr (NSLog) to our log file
+        freopen(logPath.path.cString(using: .utf8), "a+", stdout)
         freopen(logPath.path.cString(using: .utf8), "a+", stderr)
 
+        // Disable stdout buffering so print() flushes immediately (like stderr/NSLog)
+        setbuf(stdout, nil)
+
         NSLog("[DEBUG-LOG] Logging redirected to: %@", logPath.path)
-        NSLog("[DEBUG-LOG] Documents directory: %@", documentsPath.path)
     }
 }
 ```
 
 **Key Points:**
-- `freopen()` redirects stderr to a file
+- `freopen()` redirects both stdout and stderr to the same file
+- `setbuf(stdout, nil)` is **required** for print() — without it, stdout is fully-buffered when writing to a file and output won't appear until the buffer fills (~8KB) or the process exits
+- stderr (used by NSLog) is always unbuffered, so it works without `setbuf`
 - Mode `"a+"` appends to existing file (logs persist across app launches)
 - Only compiled in DEBUG builds (`#if DEBUG`)
-- First two log lines confirm redirection and show the path
+
+## NSLog vs print() — Which to Use
+
+**Use `NSLog` for instrumentation. It is significantly more valuable for autonomous debugging.**
+
+### NSLog output format:
+```
+2026-02-16 19:03:48.040 Metatext[4652:877441] [VIEWMODEL-TRACE] sections emitted (items: 82)
+```
+
+### print() output format:
+```
+[VIEWMODEL-TRACE] sections emitted (items: 82)
+```
+
+### Why NSLog wins for autonomous debugging
+
+| Feature | NSLog | print() |
+|---------|-------|---------|
+| Millisecond timestamp | ✅ automatic | ❌ must format manually |
+| Process ID | ✅ automatic | ❌ must add manually |
+| Thread ID | ✅ automatic | ❌ must add manually |
+| Buffering issues | ✅ never (stderr is unbuffered) | ⚠️ requires `setbuf(stdout, nil)` |
+| Correlate with proxy logs | ✅ timestamps match HTTP flows | ❌ no timestamp |
+| Correlate with UI interactions | ✅ timestamps match Quern events | ❌ no timestamp |
+
+The automatic timestamps from NSLog allow you to correlate app-side events with network flows captured by the proxy and UI interactions recorded by Quern — all in a shared time reference. This is essential for root cause analysis.
+
+### Using printf-style formatting with NSLog
+
+NSLog uses `%@`, `%d`, `%f` format specifiers (not Swift string interpolation):
+
+```swift
+NSLog("[VIEWMODEL-TRACE] sections: %d, items: %d, hash: %ld", sections.count, totalItems, sections.hashValue)
+```
 
 ## Programmatic Access
 
@@ -112,6 +136,9 @@ grep "\[DB-TRACE\]" "$CONTAINER/Documents/debug.log"
 
 # Count occurrences
 grep -c "\[SEARCH-TRACE\]" "$CONTAINER/Documents/debug.log"
+
+# Correlate with a time window (e.g. everything between 19:03:47 and 19:03:49)
+grep "19:03:4[789]" "$CONTAINER/Documents/debug.log"
 ```
 
 ## Complete Workflow Example
@@ -130,7 +157,7 @@ xcrun simctl install 43B500A9-B34B-4E50-AB65-F9F0F3281E07 \
 # 2. Launch the app
 xcrun simctl launch 43B500A9-B34B-4E50-AB65-F9F0F3281E07 org.arctian.metatext
 
-# 3. Get the container path
+# 3. Get the container path (do this AFTER launch — container may change on reinstall)
 CONTAINER=$(xcrun simctl get_app_container \
     43B500A9-B34B-4E50-AB65-F9F0F3281E07 \
     org.arctian.metatext \
@@ -145,8 +172,9 @@ sleep 2
 # 6. Read and analyze logs
 cat "$CONTAINER/Documents/debug.log"
 
-# 7. Filter for specific events
-grep "\[SEARCH-TRACE\].*scrolling: true" "$CONTAINER/Documents/debug.log" | wc -l
+# 7. Cross-reference with proxy: find app logs within 500ms of a specific HTTP request
+# (Quern captures proxy timestamps; match them to NSLog timestamps here)
+grep "19:03:48" "$CONTAINER/Documents/debug.log"
 ```
 
 ## Log Markers
@@ -169,19 +197,21 @@ We use consistent markers to identify different subsystems:
 4. **Persistent**: Logs survive across multiple app runs (append mode)
 5. **Standard tooling**: Use grep, awk, sed, etc. for analysis
 6. **Real-time monitoring**: tail -f for live log streaming
+7. **Time-correlated**: NSLog timestamps enable cross-referencing with proxy traffic and UI events
 
 ## Limitations
 
 1. **DEBUG builds only**: Production builds don't include this (by design)
 2. **Container path changes**: Must fetch fresh path after reinstall
 3. **File grows unbounded**: Consider clearing old logs periodically
-4. **stderr only**: Only captures NSLog, not os_log or print()
+4. **Simulator only**: Physical devices require different tooling (no simctl get_app_container)
 
 ## Clearing Old Logs
 
 To start fresh, delete the log file before launching:
 
 ```bash
+CONTAINER=$(xcrun simctl get_app_container 43B500A9-B34B-4E50-AB65-F9F0F3281E07 org.arctian.metatext data)
 rm -f "$CONTAINER/Documents/debug.log"
 xcrun simctl launch 43B500A9-B34B-4E50-AB65-F9F0F3281E07 org.arctian.metatext
 ```
@@ -192,13 +222,8 @@ Potential improvements to consider:
 
 - **Log rotation**: Automatically archive old logs when file exceeds size limit
 - **Structured logging**: Output JSON for easier parsing
-- **Multiple log files**: Separate files per subsystem
-- **Remote access**: Serve logs via local HTTP endpoint for remote debugging
-- **Stdout capture**: Also redirect stdout to capture print() statements
+- **Physical device support**: Alternative capture mechanism for real devices
 
 ## See Also
 
 - `System/AppDelegate.swift` - Implementation
-- `Data Sources/ExploreDataSource.swift` - Example usage
-- `Data Sources/TableViewDataSource.swift` - Example usage
-- `DB/Sources/DB/Content/ContentDatabase.swift` - Database logging
