@@ -4,6 +4,7 @@ import Combine
 import Foundation
 import Mastodon
 import ServiceLayer
+import os.log
 
 public final class ExploreViewModel: ObservableObject {
     public let searchViewModel: SearchViewModel
@@ -52,19 +53,41 @@ public extension ExploreViewModel {
     }
 
     func refresh() {
-        exploreService.fetchTrends()
-            .handleEvents(receiveOutput: { [weak self] trends in
-                DispatchQueue.main.async {
-                    self?.trends = trends
-                }
-            })
-            .ignoreOutput()
-            .merge(with: identityContext.service.refreshInstance())
-            .receive(on: DispatchQueue.main)
-            .handleEvents(receiveSubscription: { [weak self] _ in self?.loading = true },
-                          receiveCompletion: { [weak self] _ in self?.loading = false })
-            .sink { _ in } receiveValue: { _ in }
-            .store(in: &cancellables)
+        let version = identityContext.identity.instance?.version
+        os_log("🔍 ExploreViewModel.refresh() - version: %{public}@, isGoToSocial: %{public}@",
+               log: .default, type: .info,
+               version ?? "nil",
+               String(isGoToSocial(version: version)))
+
+        // GoToSocial doesn't support /api/v1/trends, so skip the call
+        if isGoToSocial(version: version) {
+            // Just refresh instance, skip trends
+            DispatchQueue.main.async { [weak self] in
+                self?.trends = [] // Clear trends for GoToSocial instances
+            }
+
+            identityContext.service.refreshInstance()
+                .receive(on: DispatchQueue.main)
+                .handleEvents(receiveSubscription: { [weak self] _ in self?.loading = true },
+                              receiveCompletion: { [weak self] _ in self?.loading = false })
+                .sink { _ in } receiveValue: { _ in }
+                .store(in: &cancellables)
+        } else {
+            // Mastodon: fetch trends + refresh instance
+            exploreService.fetchTrends()
+                .handleEvents(receiveOutput: { [weak self] trends in
+                    DispatchQueue.main.async {
+                        self?.trends = trends
+                    }
+                })
+                .ignoreOutput()
+                .merge(with: identityContext.service.refreshInstance())
+                .receive(on: DispatchQueue.main)
+                .handleEvents(receiveSubscription: { [weak self] _ in self?.loading = true },
+                              receiveCompletion: { [weak self] _ in self?.loading = false })
+                .sink { _ in } receiveValue: { _ in }
+                .store(in: &cancellables)
+        }
     }
 
     func viewModel(tag: Tag) -> TagViewModel {
@@ -87,5 +110,16 @@ public extension ExploreViewModel {
                                             .service(accountList: .directory(local: true),
                                                      titleComponents: ["explore.profile-directory"]))))
         }
+    }
+}
+
+private extension ExploreViewModel {
+    func isGoToSocial(version: String?) -> Bool {
+        guard let version = version else { return false }
+
+        // GoToSocial versions contain "gotosocial" (case-insensitive)
+        // or have the format "x.y.z+git-hash" which is GoToSocial-specific
+        return version.localizedCaseInsensitiveContains("GoToSocial") ||
+               version.contains("+git-")
     }
 }

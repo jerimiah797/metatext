@@ -236,7 +236,12 @@ public extension NavigationViewModel {
 
 private extension NavigationViewModel {
     func isGoToSocial(version: String?) -> Bool {
-        version?.localizedCaseInsensitiveContains("GoToSocial") ?? false
+        guard let version = version else { return false }
+
+        // GoToSocial versions contain "gotosocial" (case-insensitive)
+        // or have the format "x.y.z+git-hash" which is GoToSocial-specific
+        return version.localizedCaseInsensitiveContains("GoToSocial") ||
+               version.contains("+git-")
     }
 
     func accountSettingsURL(instanceURI: String, version: String?) -> URL? {
