@@ -34,6 +34,7 @@ struct StatusRecord: ContentDatabaseRecord, Hashable {
     let muted: Bool
     let bookmarked: Bool
     let pinned: Bool?
+    let editedAt: Date?
 }
 
 extension StatusRecord {
@@ -67,6 +68,7 @@ extension StatusRecord {
         static let muted = Column(CodingKeys.muted)
         static let bookmarked = Column(CodingKeys.bookmarked)
         static let pinned = Column(CodingKeys.pinned)
+        static let editedAt = Column(CodingKeys.editedAt)
     }
 }
 
@@ -156,5 +158,6 @@ extension StatusRecord {
         muted = status.muted
         bookmarked = status.bookmarked
         pinned = status.pinned
+        editedAt = status.editedAt
     }
 }

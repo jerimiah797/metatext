@@ -138,6 +138,7 @@ private extension CompositionInputAccessoryView {
         let visibilityButton = UIBarButtonItem(
             image: UIImage(systemName: parentViewModel.visibility.systemImageName),
             menu: visibilityMenu(selectedVisibility: parentViewModel.visibility))
+        visibilityButton.isEnabled = parentViewModel.canChangeVisibility
 
         let contentWarningButton = UIBarButtonItem(
             title: NSLocalizedString("status.content-warning-abbreviation", comment: ""),

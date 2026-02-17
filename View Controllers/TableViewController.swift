@@ -554,13 +554,14 @@ private extension TableViewController {
         case let .attachment(attachmentViewModel, statusViewModel):
             present(attachmentViewModel: attachmentViewModel, statusViewModel: statusViewModel)
         case let .compose(identity, inReplyToViewModel, redraft, redraftWasContextParent, directMessageTo,
-                          pendingDeleteId, redraftSourceText, redraftSourceSpoilerText):
+                          pendingDeleteId, editStatusId, redraftSourceText, redraftSourceSpoilerText):
             compose(identity: identity,
                     inReplyToViewModel: inReplyToViewModel,
                     redraft: redraft,
                     redraftWasContextParent: redraftWasContextParent,
                     directMessageTo: directMessageTo,
                     pendingDeleteId: pendingDeleteId,
+                    editStatusId: editStatusId,
                     redraftSourceText: redraftSourceText,
                     redraftSourceSpoilerText: redraftSourceSpoilerText)
         case let .confirmDelete(statusViewModel, redraft):
@@ -681,6 +682,7 @@ private extension TableViewController {
                  redraftWasContextParent: Bool,
                  directMessageTo: AccountViewModel?,
                  pendingDeleteId: Status.Id? = nil,
+                 editStatusId: Status.Id? = nil,
                  redraftSourceText: String? = nil,
                  redraftSourceSpoilerText: String? = nil) {
         if redraftWasContextParent {
@@ -694,6 +696,7 @@ private extension TableViewController {
             redraft: redraft,
             directMessageTo: directMessageTo,
             pendingDeleteId: pendingDeleteId,
+            editStatusId: editStatusId,
             redraftSourceText: redraftSourceText,
             redraftSourceSpoilerText: redraftSourceSpoilerText)
     }

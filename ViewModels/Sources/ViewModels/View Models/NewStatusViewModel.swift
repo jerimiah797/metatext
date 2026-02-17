@@ -14,6 +14,7 @@ public final class NewStatusViewModel: ObservableObject {
     @Published public var alertItem: AlertItem?
     @Published public private(set) var postingState = PostingState.composing
     public let canChangeIdentity: Bool
+    public let canChangeVisibility: Bool
     public let inReplyToViewModel: StatusViewModel?
     public let events: AnyPublisher<Event, Never>
 
@@ -22,6 +23,7 @@ public final class NewStatusViewModel: ObservableObject {
     private let eventsSubject = PassthroughSubject<Event, Never>()
     private let compositionEventsSubject = PassthroughSubject<CompositionViewModel.Event, Never>()
     private let pendingDeleteId: Status.Id?
+    private let editStatusId: Status.Id?
     private let identityServiceForDelete: IdentityService?
     private var cancellables = Set<AnyCancellable>()
 
@@ -35,18 +37,22 @@ public final class NewStatusViewModel: ObservableObject {
                 directMessageTo: AccountViewModel?,
                 extensionContext: NSExtensionContext?,
                 pendingDeleteId: Status.Id? = nil,
+                editStatusId: Status.Id? = nil,
                 redraftSourceText: String? = nil,
                 redraftSourceSpoilerText: String? = nil) {
         self.allIdentitiesService = allIdentitiesService
         self.identityContext = identityContext
         self.environment = environment
         self.pendingDeleteId = pendingDeleteId
+        self.editStatusId = editStatusId
         self.identityServiceForDelete = pendingDeleteId != nil ? identityContext.service : nil
         inReplyToViewModel = inReplyTo
         events = eventsSubject.eraseToAnyPublisher()
         visibility = redraft?.visibility
             ?? inReplyTo?.visibility
             ?? (identity ?? identityContext.identity).preferences.postingDefaultVisibility
+
+        canChangeVisibility = editStatusId == nil
 
         if let inReplyTo = inReplyTo {
             switch inReplyTo.visibility {
@@ -241,33 +247,53 @@ private extension NewStatusViewModel {
 
     func post(viewModel: CompositionViewModel, inReplyToId: Status.Id?) {
         postingState = .posting
-        identityContext.service.post(statusComponents: viewModel.components(
-                                        inReplyToId: inReplyToId,
-                                        visibility: visibility))
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self = self else { return }
+        let components = viewModel.components(inReplyToId: inReplyToId, visibility: visibility)
 
-                switch $0 {
-                case .finished:
-                    if self.compositionViewModels.allSatisfy(\.isPosted) {
+        if let editId = editStatusId {
+            identityContext.service.editStatus(id: editId, components: components)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    guard let self = self else { return }
+
+                    switch $0 {
+                    case .finished:
                         self.postingState = .done
-                        self.performDeferredDeleteIfNeeded()
+                    case let .failure(error):
+                        self.alertItem = AlertItem(error: error)
+                        self.postingState = .composing
                     }
-                case let .failure(error):
-                    self.alertItem = AlertItem(error: error)
-                    self.postingState = .composing
+                } receiveValue: { [weak self] _ in
+                    guard let self = self else { return }
+                    viewModel.isPosted = true
                 }
-            } receiveValue: { [weak self] in
-                guard let self = self else { return }
+                .store(in: &cancellables)
+        } else {
+            identityContext.service.post(statusComponents: components)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    guard let self = self else { return }
 
-                viewModel.isPosted = true
+                    switch $0 {
+                    case .finished:
+                        if self.compositionViewModels.allSatisfy(\.isPosted) {
+                            self.postingState = .done
+                            self.performDeferredDeleteIfNeeded()
+                        }
+                    case let .failure(error):
+                        self.alertItem = AlertItem(error: error)
+                        self.postingState = .composing
+                    }
+                } receiveValue: { [weak self] in
+                    guard let self = self else { return }
 
-                if let unposted = self.compositionViewModels.first(where: { !$0.isPosted }) {
-                    self.post(viewModel: unposted, inReplyToId: $0)
+                    viewModel.isPosted = true
+
+                    if let unposted = self.compositionViewModels.first(where: { !$0.isPosted }) {
+                        self.post(viewModel: unposted, inReplyToId: $0)
+                    }
                 }
-            }
-            .store(in: &cancellables)
+                .store(in: &cancellables)
+        }
     }
 
     func performDeferredDeleteIfNeeded() {

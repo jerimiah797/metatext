@@ -138,6 +138,8 @@ public extension StatusViewModel {
 
     var pinned: Bool? { statusService.status.displayStatus.pinned }
 
+    var editedAt: Date? { statusService.status.displayStatus.editedAt }
+
     var muted: Bool { statusService.status.displayStatus.muted }
 
     var sharingURL: URL? {
@@ -378,6 +380,34 @@ public extension StatusViewModel {
                                 redraftWasContextParent: isContextParent)
                         }
                         .eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher())
+    }
+
+    func edit() {
+        let identityContext = self.identityContext
+        let statusId = statusService.status.displayStatus.id
+
+        eventsSubject.send(
+            statusService.fetchForRedraft()
+                .map { result -> CollectionItemEvent in
+                    let inReplyToViewModel: StatusViewModel?
+
+                    if let inReplyToStatusService = result.inReplyToService {
+                        inReplyToViewModel = Self(
+                            statusService: inReplyToStatusService,
+                            identityContext: identityContext,
+                            eventsSubject: .init())
+                        inReplyToViewModel?.configuration = CollectionItem.StatusConfiguration.default.reply()
+                    } else {
+                        inReplyToViewModel = nil
+                    }
+
+                    return .compose(inReplyTo: inReplyToViewModel,
+                                    redraft: result.status,
+                                    editStatusId: statusId,
+                                    redraftSourceText: result.source.text,
+                                    redraftSourceSpoilerText: result.source.spoilerText)
                 }
                 .eraseToAnyPublisher())
     }

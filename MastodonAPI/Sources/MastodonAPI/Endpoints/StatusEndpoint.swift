@@ -18,6 +18,7 @@ public enum StatusEndpoint {
     case unmute(id: Status.Id)
     case delete(id: Status.Id)
     case post(Components)
+    case edit(id: Status.Id, Components)
 }
 
 public extension StatusEndpoint {
@@ -103,6 +104,8 @@ extension StatusEndpoint: Endpoint {
         switch self {
         case let .status(id), let .delete(id):
             return [id]
+        case let .edit(id, _):
+            return [id]
         case let .reblog(id):
             return [id, "reblog"]
         case let .unreblog(id):
@@ -132,6 +135,8 @@ extension StatusEndpoint: Endpoint {
         switch self {
         case let .post(components):
             return components.jsonBody
+        case let .edit(_, components):
+            return components.jsonBody
         default:
             return nil
         }
@@ -143,6 +148,8 @@ extension StatusEndpoint: Endpoint {
             return .get
         case .delete:
             return .delete
+        case .edit:
+            return .put
         default:
             return .post
         }

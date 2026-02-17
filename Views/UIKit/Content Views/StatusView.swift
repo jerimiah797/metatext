@@ -494,17 +494,18 @@ private extension StatusView {
         hasReplyFollowingView.isHidden = !viewModel.configuration.hasReplyFollowing
 
         if viewModel.isReblog {
-            let attributedTitle = "status.reblogged-by-%@".localizedBolding(
-                displayName: viewModel.rebloggedByDisplayName,
-                emojis: viewModel.rebloggedByDisplayNameEmojis,
-                label: infoLabel,
-                identityContext: viewModel.identityContext)
-            let highlightedAttributedTitle = NSMutableAttributedString(attributedString: attributedTitle)
+            let attributedTitle = NSMutableAttributedString(
+                attributedString: "status.reblogged-by-%@".localizedBolding(
+                    displayName: viewModel.rebloggedByDisplayName,
+                    emojis: viewModel.rebloggedByDisplayNameEmojis,
+                    label: infoLabel,
+                    identityContext: viewModel.identityContext))
 
-            highlightedAttributedTitle.addAttribute(
-                .foregroundColor,
-                value: UIColor.tertiaryLabel,
-                range: .init(location: 0, length: highlightedAttributedTitle.length))
+            if viewModel.editedAt != nil {
+                attributedTitle.append(NSAttributedString(
+                    string: " · \(NSLocalizedString("status.edited", comment: ""))",
+                    attributes: [.foregroundColor: UIColor.link]))
+            }
 
             infoLabel.attributedText = attributedTitle
             infoIcon.image = UIImage(
@@ -523,7 +524,15 @@ private extension StatusView {
                 pinnedText = NSLocalizedString("status.pinned.post", comment: "")
             }
 
-            infoLabel.text = pinnedText
+            if viewModel.editedAt != nil {
+                let combined = NSMutableAttributedString(string: pinnedText)
+                combined.append(NSAttributedString(
+                    string: " · \(NSLocalizedString("status.edited", comment: ""))",
+                    attributes: [.foregroundColor: UIColor.link]))
+                infoLabel.attributedText = combined
+            } else {
+                infoLabel.text = pinnedText
+            }
             infoIcon.centerYAnchor.constraint(equalTo: infoLabel.centerYAnchor).isActive = true
             infoIcon.image = UIImage(
                 systemName: "pin",
@@ -531,8 +540,15 @@ private extension StatusView {
             infoLabel.isHidden = false
             infoIcon.isHidden = false
             rebloggerButton.isHidden = true
+        } else if viewModel.editedAt != nil {
+            infoLabel.text = NSLocalizedString("status.edited", comment: "")
+            infoLabel.textColor = .link
+            infoIcon.isHidden = true
+            infoLabel.isHidden = false
+            rebloggerButton.isHidden = true
         } else {
             infoLabel.text = nil
+            infoLabel.textColor = .secondaryLabel
             infoIcon.image = nil
             infoLabel.isHidden = true
             infoIcon.isHidden = true
@@ -687,6 +703,11 @@ private extension StatusView {
                         : NSLocalizedString("status.mute", comment: ""),
                     image: UIImage(systemName: viewModel.muted ? "speaker" : "speaker.slash")) { _ in
                     viewModel.toggleMuted()
+                },
+                UIAction(
+                    title: NSLocalizedString("status.edit", comment: ""),
+                    image: UIImage(systemName: "pencil")) { _ in
+                    viewModel.edit()
                 },
                 UIAction(
                     title: NSLocalizedString("status.delete", comment: ""),

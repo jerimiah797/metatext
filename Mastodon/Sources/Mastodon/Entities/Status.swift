@@ -42,6 +42,7 @@ public final class Status: Codable, Identifiable {
     @DecodableDefault.False public private(set) var muted: Bool
     @DecodableDefault.False public private(set) var bookmarked: Bool
     public let pinned: Bool?
+    public let editedAt: Date?
 
     public init(
         id: Status.Id,
@@ -72,7 +73,8 @@ public final class Status: Codable, Identifiable {
         reblogged: Bool,
         muted: Bool,
         bookmarked: Bool,
-        pinned: Bool?) {
+        pinned: Bool?,
+        editedAt: Date? = nil) {
         self.id = id
         self.uri = uri
         self.createdAt = createdAt
@@ -96,6 +98,7 @@ public final class Status: Codable, Identifiable {
         self.language = language
         self.text = text
         self.pinned = pinned
+        self.editedAt = editedAt
         self.repliesCount = repliesCount
         self.content = content
         self.favourited = favourited
@@ -144,6 +147,7 @@ extension Status: Hashable {
             && lhs.muted == rhs.muted
             && lhs.bookmarked == rhs.bookmarked
             && lhs.pinned == rhs.pinned
+            && lhs.editedAt == rhs.editedAt
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -176,5 +180,6 @@ extension Status: Hashable {
         hasher.combine(muted)
         hasher.combine(bookmarked)
         hasher.combine(pinned)
+        hasher.combine(editedAt)
     }
 }
