@@ -73,7 +73,7 @@ public extension PushNotificationParsingService {
 
             mastodonAPIClient.accessToken = pushNotification.accessToken
 
-            let endpoint = NotificationEndpoint.notification(id: String(pushNotification.notificationId))
+            let endpoint = NotificationEndpoint.notification(id: pushNotification.notificationId)
 
             return mastodonAPIClient.request(endpoint)
                 .map {

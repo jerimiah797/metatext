@@ -7,7 +7,7 @@ public struct PushNotification: Codable {
     public let body: String
     public let title: String
     public let icon: UnicodeURL
-    public let notificationId: Int
+    public let notificationId: String
     public let notificationType: MastodonNotification.NotificationType
     public let preferredLocale: String
 }
