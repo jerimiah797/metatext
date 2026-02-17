@@ -4,6 +4,7 @@ import Combine
 import Mastodon
 import UIKit
 import ViewModels
+import os.log
 
 final class ExploreDataSource: UICollectionViewDiffableDataSource<ExploreViewModel.Section, ExploreViewModel.Item> {
     private let updateQueue =
@@ -65,7 +66,10 @@ final class ExploreDataSource: UICollectionViewDiffableDataSource<ExploreViewMod
         }
 
         viewModel.$trends.combineLatest(viewModel.$instanceViewModel)
-            .sink { [weak self] in self?.update(tags: $0, instanceViewModel: $1) }
+            .sink { [weak self] trends, instanceViewModel in
+                print("[EXPLORE-TRACE] ExploreDataSource: combineLatest fired (trends: \(trends.count), instance: \(instanceViewModel?.instance.version ?? "nil"))")
+                self?.update(tags: trends, instanceViewModel: instanceViewModel)
+            }
             .store(in: &cancellables)
     }
 
@@ -80,6 +84,9 @@ final class ExploreDataSource: UICollectionViewDiffableDataSource<ExploreViewMod
 
 private extension ExploreDataSource {
     func update(tags: [Tag], instanceViewModel: InstanceViewModel?) {
+        let isScrolling = collectionView?.isDragging == true || collectionView?.isDecelerating == true
+        print("[EXPLORE-TRACE] ExploreDataSource.update() called (tags: \(tags.count), instance: \(instanceViewModel?.instance.version ?? "nil"), scrolling: \(isScrolling))")
+
         var newsnapshot = NSDiffableDataSourceSnapshot<ExploreViewModel.Section, ExploreViewModel.Item>()
 
         if !tags.isEmpty {
@@ -98,6 +105,8 @@ private extension ExploreDataSource {
 
         let wasEmpty = self.snapshot().itemIdentifiers.isEmpty
         let contentOffset = collectionView?.contentOffset
+
+        print("[EXPLORE-TRACE] ExploreDataSource: Applying snapshot (items: \(newsnapshot.itemIdentifiers.count), wasEmpty: \(wasEmpty), scrolling: \(isScrolling))")
 
         apply(newsnapshot, animatingDifferences: false) {
             if let contentOffset = contentOffset, !wasEmpty {

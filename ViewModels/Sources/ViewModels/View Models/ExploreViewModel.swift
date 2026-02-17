@@ -26,10 +26,23 @@ public final class ExploreViewModel: ObservableObject {
         events = eventsSubject.eraseToAnyPublisher()
 
         identityContext.$identity
+            .handleEvents(receiveOutput: { identity in
+                print("[EXPLORE-TRACE] ExploreViewModel: identity changed (instance: \(identity.instance?.uri ?? "nil"))")
+            })
             .compactMap { $0.instance?.uri }
             .removeDuplicates()
+            .handleEvents(receiveOutput: { uri in
+                print("[EXPLORE-TRACE] ExploreViewModel: URI emitted: \(uri)")
+            })
             .flatMap { service.instanceServicePublisher(uri: $0) }
+            .handleEvents(receiveOutput: { instanceService in
+                print("[EXPLORE-TRACE] ExploreViewModel: instanceService emitted (version: \(instanceService.instance.version))")
+            })
             .map { InstanceViewModel(instanceService: $0) }
+            .handleEvents(receiveOutput: { viewModel in
+                let version = (viewModel as? InstanceViewModel)?.instance.version ?? "unknown"
+                print("[EXPLORE-TRACE] ExploreViewModel: instanceViewModel created (version: \(version))")
+            })
             .receive(on: DispatchQueue.main)
             .assignErrorsToAlertItem(to: \.alertItem, on: self)
             .assign(to: &$instanceViewModel)
@@ -54,10 +67,7 @@ public extension ExploreViewModel {
 
     func refresh() {
         let version = identityContext.identity.instance?.version
-        os_log("🔍 ExploreViewModel.refresh() - version: %{public}@, isGoToSocial: %{public}@",
-               log: .default, type: .info,
-               version ?? "nil",
-               String(isGoToSocial(version: version)))
+        print("[EXPLORE-TRACE] ExploreViewModel.refresh() - version: \(version ?? "nil"), isGoToSocial: \(isGoToSocial(version: version))")
 
         // GoToSocial doesn't support /api/v1/trends, so skip the call
         if isGoToSocial(version: version) {
