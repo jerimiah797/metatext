@@ -64,8 +64,12 @@ public extension EditFilterV2ViewModel {
     }
 
     func save() {
+        let validKeywords = keywords.filter { !$0.keyword.trimmingCharacters(in: .whitespaces).isEmpty }
+
+        guard !validKeywords.isEmpty else { return }
+
         let contextArray = Array(context)
-        let currentKeywordIds = Set(keywords.filter { $0.id != FilterKeyword.newKeywordId }.map(\.id))
+        let currentKeywordIds = Set(validKeywords.filter { $0.id != FilterKeyword.newKeywordId }.map(\.id))
         let deletedKeywordIds = Array(originalKeywordIds
             .subtracting([FilterKeyword.newKeywordId])
             .subtracting(currentKeywordIds))
@@ -75,12 +79,12 @@ public extension EditFilterV2ViewModel {
         if isNew {
             publisher = identityContext.service.createFilterV2(
                 title: title, context: contextArray, filterAction: filterAction,
-                expiresIn: expiresAt, keywords: keywords)
+                expiresIn: expiresAt, keywords: validKeywords)
         } else {
             publisher = identityContext.service.updateFilterV2(
                 id: filterId!, title: title, context: contextArray,
                 filterAction: filterAction, expiresIn: expiresAt,
-                keywords: keywords, deletedKeywordIds: deletedKeywordIds)
+                keywords: validKeywords, deletedKeywordIds: deletedKeywordIds)
         }
 
         publisher
