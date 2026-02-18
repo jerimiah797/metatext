@@ -136,10 +136,9 @@ private extension MainNavigationViewController {
             tabBar.isHidden = true
         }
 
-        let secondaryNavigationButton = SecondaryNavigationButton(viewModel: viewModel, rootViewModel: rootViewModel)
-
         for controller in controllers {
-            controller.navigationItem.leftBarButtonItem = secondaryNavigationButton
+            controller.navigationItem.leftBarButtonItem =
+                SecondaryNavigationButton(viewModel: viewModel, rootViewModel: rootViewModel)
         }
 
         viewControllers = controllers.map(SwipeableNavigationController.init(rootViewController:))
