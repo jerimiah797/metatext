@@ -15,6 +15,13 @@ A free, open-source iOS Mastodon client.
 - **Improved remote profile loading** — when visiting a profile hosted on another instance, posts now load automatically via retry instead of requiring the user to back out and reload (particularly noticeable with GoToSocial servers, which fetch remote content asynchronously)
 - **Fixed hashtag search results layout** — tag cells rendered as tiny illegible lines on servers (like GoToSocial) that don't return tag history data; also increased search debounce to reduce rate limiting
 - **Fixed Edit Profile / Account Settings for GoToSocial** — uses correct GoToSocial settings URLs and opens them in-browser instead of ASWebAuthenticationSession, which lacks the localStorage needed by GoToSocial's settings panel
+- **Fixed hybrid search** — federated search results no longer cancel and replace local results
+- **Deferred deletion (Delete & re-draft)** — deletes a post and opens the composer pre-filled with its content for editing and reposting
+- **Fixed scrollbar flicker** — eliminated redundant collection view updates that caused visible scrollbar jitter
+- **Fixed push notifications for GoToSocial** — notification IDs are now parsed as strings (GoToSocial sends string IDs, not integers)
+- **Skipped unsupported /trends API for GoToSocial** — avoids unnecessary 404 errors on the Explore tab
+- **Native status editing** — edit published posts via `PUT /api/v1/statuses/:id` with an "Edited" label on modified posts
+- **Filters v2** — full support for Mastodon 4.0+ / GoToSocial 0.17+ filters with `.warn` (collapse behind warning) and `.hide` (remove from timeline) actions, per-account v2 toggle, keyword management, client-side fallback for cached posts, and automatic 404 fallback to v1 filters
 
 ## Contributing Bug Reports
 
