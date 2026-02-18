@@ -50,7 +50,7 @@ final class AddIdentityViewModelTests: XCTestCase {
 
         XCTAssertNil(try wait(for: recorder.next(), timeout: 1))
 
-        sut.urlFieldText = "🐘.social"
+        sut.urlFieldText = "not a url"
         sut.logInTapped()
 
         let alertItem = try wait(for: recorder.next(), timeout: 1)
