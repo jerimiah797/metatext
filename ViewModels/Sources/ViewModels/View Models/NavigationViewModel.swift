@@ -78,7 +78,8 @@ public extension NavigationViewModel {
             identityContext.service.refreshLists()
                 .sink { _ in } receiveValue: { _ in }
                 .store(in: &cancellables)
-            identityContext.service.refreshFilters()
+            identityContext.service.refreshFilters(
+                useFiltersV2: identityContext.identity.preferences.useFiltersV2)
                 .sink { _ in } receiveValue: { _ in }
                 .store(in: &cancellables)
             identityContext.service.refreshEmojis()
@@ -138,7 +139,9 @@ public extension NavigationViewModel {
         presentingSecondaryNavigation = false
         presentedNewStatusViewModel = nil
         navigationsSubject.send(
-            .collection(identityContext.service.navigationService.timelineService(timeline: timeline)))
+            .collection(identityContext.service.navigationService.timelineService(
+                timeline: timeline,
+                useFiltersV2: identityContext.identity.preferences.useFiltersV2)))
     }
 
     func navigateToFollowerRequests() {
@@ -168,7 +171,8 @@ public extension NavigationViewModel {
     func navigateToURL(_ url: URL) {
         presentingSecondaryNavigation = false
         presentedNewStatusViewModel = nil
-        identityContext.service.navigationService.item(url: url)
+        identityContext.service.navigationService.item(
+            url: url, useFiltersV2: identityContext.identity.preferences.useFiltersV2)
             .sink { [weak self] in self?.navigationsSubject.send($0) }
             .store(in: &cancellables)
     }
@@ -191,7 +195,9 @@ public extension NavigationViewModel {
 
     func viewModel(timeline: Timeline) -> CollectionItemsViewModel {
         CollectionItemsViewModel(
-            collectionService: identityContext.service.navigationService.timelineService(timeline: timeline),
+            collectionService: identityContext.service.navigationService.timelineService(
+                timeline: timeline,
+                useFiltersV2: identityContext.identity.preferences.useFiltersV2),
             identityContext: identityContext)
     }
 

@@ -9,6 +9,7 @@ import Secrets
 
 public struct ContentDatabase {
     public let activeFiltersPublisher: AnyPublisher<[Filter], Error>
+    public let activeFiltersV2Publisher: AnyPublisher<[FilterV2], Error>
 
     private let id: Identity.Id
     private let databaseWriter: DatabaseWriter
@@ -35,6 +36,19 @@ public struct ContentDatabase {
 
         activeFiltersPublisher = ValueObservation.tracking {
             try Filter.filter(Filter.Columns.expiresAt == nil || Filter.Columns.expiresAt > Date()).fetchAll($0)
+        }
+        .removeDuplicates()
+        .publisher(in: databaseWriter)
+        .eraseToAnyPublisher()
+
+        activeFiltersV2Publisher = ValueObservation.tracking { db in
+            let infos = try FilterV2Info.request(
+                FilterV2Record.filter(
+                    FilterV2Record.Columns.expiresAt == nil
+                        || FilterV2Record.Columns.expiresAt > Date())
+            ).fetchAll(db)
+
+            return infos.map { $0.toFilterV2() }
         }
         .removeDuplicates()
         .publisher(in: databaseWriter)
@@ -370,6 +384,133 @@ public extension ContentDatabase {
         databaseWriter.mutatingPublisher(updates: Filter.filter(Filter.Columns.id == id).deleteAll)
     }
 
+    func setFiltersV2(_ filters: [FilterV2]) -> AnyPublisher<Never, Error> {
+        databaseWriter.mutatingPublisher {
+            for filter in filters {
+                try FilterV2Record(filter: filter).save($0)
+
+                for keyword in filter.keywords {
+                    try FilterKeywordRecord(keyword: keyword, filterId: filter.id).save($0)
+                }
+
+                // Remove keywords no longer present for this filter
+                try FilterKeywordRecord
+                    .filter(FilterKeywordRecord.Columns.filterId == filter.id
+                                && !filter.keywords.map(\.id).contains(FilterKeywordRecord.Columns.id))
+                    .deleteAll($0)
+            }
+
+            // Remove filters no longer present
+            try FilterV2Record.filter(!filters.map(\.id).contains(FilterV2Record.Columns.id)).deleteAll($0)
+        }
+    }
+
+    func createFilterV2(_ filter: FilterV2) -> AnyPublisher<Never, Error> {
+        databaseWriter.mutatingPublisher {
+            try FilterV2Record(filter: filter).save($0)
+
+            for keyword in filter.keywords {
+                try FilterKeywordRecord(keyword: keyword, filterId: filter.id).save($0)
+            }
+        }
+    }
+
+    func deleteFilterV2(id: FilterV2.Id) -> AnyPublisher<Never, Error> {
+        databaseWriter.mutatingPublisher(
+            updates: FilterV2Record.filter(FilterV2Record.Columns.id == id).deleteAll)
+    }
+
+    func invalidateFilteredStatuses() -> AnyPublisher<Never, Error> {
+        databaseWriter.mutatingPublisher {
+            try StatusRecord.updateAll($0, StatusRecord.Columns.filteredJSON.set(to: nil))
+        }
+    }
+
+    func deleteStatusesMatching(keywords: [FilterKeyword], contexts: [Filter.Context]) -> AnyPublisher<Never, Error> {
+        databaseWriter.mutatingPublisher { db in
+            guard !keywords.isEmpty else { return }
+
+            // Build regex from keywords (reuses v1 word-boundary logic)
+            let pattern = keywords.map { kw in
+                var expression = NSRegularExpression.escapedPattern(for: kw.keyword)
+
+                if kw.wholeWord {
+                    if expression.range(of: #"^[\w]"#, options: .regularExpression) != nil {
+                        expression = #"\b"#.appending(expression)
+                    }
+                    if expression.range(of: #"[\w]$"#, options: .regularExpression) != nil {
+                        expression.append(#"\b"#)
+                    }
+                }
+
+                return expression
+            }.joined(separator: "|")
+
+            // For each relevant timeline context, find matching statuses and delete them
+            let timelineIds: [Timeline.Id] = contexts.compactMap { context -> [Timeline.Id] in
+                switch context {
+                case .home:
+                    return [Timeline.home.id]
+                case .public:
+                    return [Timeline.local.id, Timeline.federated.id]
+                default:
+                    return []
+                }
+            }.flatMap { $0 }
+
+            guard !timelineIds.isEmpty else { return }
+
+            // Get status IDs from relevant timelines
+            let statusIds = try Status.Id.fetchAll(
+                db,
+                TimelineStatusJoin
+                    .filter(timelineIds.contains(TimelineStatusJoin.Columns.timelineId))
+                    .select(TimelineStatusJoin.Columns.statusId))
+
+            guard !statusIds.isEmpty else { return }
+
+            // Fetch status records and their reblogs to check content
+            let statusRecords = try StatusRecord
+                .filter(statusIds.contains(StatusRecord.Columns.id))
+                .fetchAll(db)
+
+            var idsToDelete = Set<Status.Id>()
+
+            for record in statusRecords {
+                let content: [String]
+
+                if let reblogId = record.reblogId,
+                   let reblogRecord = try StatusRecord.fetchOne(db, key: reblogId) {
+                    content = record.filterableContent + reblogRecord.filterableContent
+                } else {
+                    content = record.filterableContent
+                }
+
+                let joined = content.joined(separator: " ")
+                if joined.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil {
+                    idsToDelete.insert(record.id)
+                }
+            }
+
+            if !idsToDelete.isEmpty {
+                try StatusRecord.filter(idsToDelete.contains(StatusRecord.Columns.id)).deleteAll(db)
+            }
+        }
+    }
+
+    func expiredFiltersV2Publisher() -> AnyPublisher<[FilterV2], Error> {
+        ValueObservation.tracking { db in
+            let infos = try FilterV2Info.request(
+                FilterV2Record.filter(FilterV2Record.Columns.expiresAt < Date())
+            ).fetchAll(db)
+
+            return infos.map { $0.toFilterV2() }
+        }
+        .removeDuplicates()
+        .publisher(in: databaseWriter)
+        .eraseToAnyPublisher()
+    }
+
     func setLastReadId(_ id: String, timelineId: Timeline.Id) -> AnyPublisher<Never, Error> {
         databaseWriter.mutatingPublisher { try LastReadIdRecord(timelineId: timelineId, id: id).save($0) }
     }
@@ -437,7 +578,7 @@ public extension ContentDatabase {
         databaseWriter.mutatingPublisher(updates: instance.save)
     }
 
-    func timelinePublisher(_ timeline: Timeline) -> AnyPublisher<[CollectionSection], Error> {
+    func timelinePublisher(_ timeline: Timeline, useFiltersV2: Bool = false) -> AnyPublisher<[CollectionSection], Error> {
         ValueObservation.tracking(
             TimelineItemsInfo.request(TimelineRecord.filter(TimelineRecord.Columns.id == timeline.id),
                                       ordered: timeline.ordered).fetchOne)
@@ -458,18 +599,18 @@ public extension ContentDatabase {
                         databaseWriter.asyncWrite(TimelineRecord(timeline: timeline).delete) { _, _ in }
                     }
                 })
-            .combineLatest(activeFiltersPublisher)
-            .compactMap { $0?.items(filters: $1) }
+            .combineLatest(activeFiltersPublisher, activeFiltersV2Publisher)
+            .compactMap { $0?.items(useFiltersV2: useFiltersV2, v1Filters: $1, v2Filters: $2) }
             .eraseToAnyPublisher()
     }
 
-    func contextPublisher(id: Status.Id) -> AnyPublisher<[CollectionSection], Error> {
+    func contextPublisher(id: Status.Id, useFiltersV2: Bool = false) -> AnyPublisher<[CollectionSection], Error> {
         ValueObservation.tracking(
             ContextItemsInfo.request(StatusRecord.filter(StatusRecord.Columns.id == id)).fetchOne)
             .removeDuplicates()
             .publisher(in: databaseWriter)
-            .combineLatest(activeFiltersPublisher)
-            .map { $0?.items(filters: $1) }
+            .combineLatest(activeFiltersPublisher, activeFiltersV2Publisher)
+            .map { $0?.items(useFiltersV2: useFiltersV2, v1Filters: $1, v2Filters: $2) }
             .replaceNil(with: [])
             .eraseToAnyPublisher()
     }

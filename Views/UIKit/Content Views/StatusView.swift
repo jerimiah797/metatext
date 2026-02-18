@@ -189,6 +189,7 @@ private extension StatusView {
         mainStackView.addArrangedSubview(infoLabel)
 
         infoLabel.addSubview(rebloggerButton)
+        rebloggerButton.accessibilityIdentifier = "status.reblogger"
         rebloggerButton.translatesAutoresizingMaskIntoConstraints = false
         rebloggerButton.addAction(
             UIAction { [weak self] _ in self?.statusConfiguration.viewModel.rebloggerAccountSelected() },
@@ -232,6 +233,7 @@ private extension StatusView {
         nameAccountContainerStackView.addArrangedSubview(nameAccountTimeStackView)
         mainStackView.addArrangedSubview(nameAccountContainerStackView)
 
+        nameButton.accessibilityIdentifier = "status.name"
         nameButton.translatesAutoresizingMaskIntoConstraints = false
         nameButton.addAction(
             UIAction { [weak self] _ in
@@ -332,11 +334,13 @@ private extension StatusView {
         interactionsStackView.addArrangedSubview(favoritedByButton)
         interactionsStackView.distribution = .fillEqually
 
+        replyButton.accessibilityIdentifier = "status.reply"
         replyButton.addAction(
             UIAction { [weak self] _ in self?.statusConfiguration.viewModel.reply() },
             for: .touchUpInside)
         replyButton.accessibilityLabel = NSLocalizedString("status.reply-button.accessibility-label", comment: "")
 
+        reblogButton.accessibilityIdentifier = "status.reblog"
         reblogButton.addAction(
             UIAction { [weak self] _ in
                 guard let self = self,
@@ -348,6 +352,7 @@ private extension StatusView {
             for: .touchUpInside)
         reblogButton.addTarget(self, action: #selector(reblogButtonDoubleTap(sender:event:)), for: .touchDownRepeat)
 
+        favoriteButton.accessibilityIdentifier = "status.favorite"
         favoriteButton.addAction(
             UIAction { [weak self] _ in
                 guard let self = self,
@@ -360,10 +365,12 @@ private extension StatusView {
         favoriteButton.accessibilityLabel = NSLocalizedString("status.favorite-button.accessibility-label", comment: "")
         favoriteButton.addTarget(self, action: #selector(favoriteButtonDoubleTap(sender:event:)), for: .touchDownRepeat)
 
+        shareButton.accessibilityIdentifier = "status.share"
         shareButton.addAction(
             UIAction { [weak self] _ in self?.statusConfiguration.viewModel.shareStatus() },
             for: .touchUpInside)
 
+        menuButton.accessibilityIdentifier = "status.menu"
         menuButton.showsMenuAsPrimaryAction = true
 
         for button in actionButtons {
@@ -384,6 +391,7 @@ private extension StatusView {
         avatarImageView.layer.cornerRadius = .avatarDimension / 2
         avatarImageView.clipsToBounds = true
 
+        avatarButton.accessibilityIdentifier = "status.avatar"
         avatarButton.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.addSubview(avatarButton)
         avatarImageView.isUserInteractionEnabled = true
@@ -407,6 +415,7 @@ private extension StatusView {
         }
 
         containerStackView.addArrangedSubview(reportSelectionSwitch)
+        reportSelectionSwitch.accessibilityIdentifier = "status.report-selection"
         reportSelectionSwitch.setContentCompressionResistancePriority(.required, for: .horizontal)
         reportSelectionSwitch.setContentHuggingPriority(.required, for: .horizontal)
         reportSelectionSwitch.setContentHuggingPriority(.defaultLow, for: .vertical)

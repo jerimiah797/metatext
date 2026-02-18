@@ -10,6 +10,8 @@ public enum EmptyEndpoint {
     case removeAccountsFromList(id: List.Id, accountIds: Set<Account.Id>)
     case deleteList(id: List.Id)
     case deleteFilter(id: Filter.Id)
+    case deleteFilterV2(id: FilterV2.Id)
+    case deleteFilterKeyword(id: FilterKeyword.Id)
     case blockDomain(String)
     case unblockDomain(String)
     case dismissAnnouncement(id: Announcement.Id)
@@ -28,6 +30,10 @@ extension EmptyEndpoint: Endpoint {
             return defaultContext + ["lists"]
         case .deleteFilter:
             return defaultContext + ["filters"]
+        case .deleteFilterV2:
+            return ["api", "v2", "filters"]
+        case .deleteFilterKeyword:
+            return ["api", "v2", "filter_keywords"]
         case .blockDomain, .unblockDomain:
             return defaultContext + ["domain_blocks"]
         case .dismissAnnouncement, .addAnnouncementReaction, .removeAnnouncementReaction:
@@ -41,7 +47,7 @@ extension EmptyEndpoint: Endpoint {
             return ["revoke"]
         case let .addAccountsToList(id, _), let .removeAccountsFromList(id, _):
             return [id, "accounts"]
-        case let .deleteList(id), let .deleteFilter(id):
+        case let .deleteList(id), let .deleteFilter(id), let .deleteFilterV2(id), let .deleteFilterKeyword(id):
             return [id]
         case .blockDomain, .unblockDomain:
             return []
@@ -58,7 +64,8 @@ extension EmptyEndpoint: Endpoint {
             return .post
         case .addAnnouncementReaction:
             return .put
-        case .removeAccountsFromList, .deleteList, .deleteFilter, .unblockDomain, .removeAnnouncementReaction:
+        case .removeAccountsFromList, .deleteList, .deleteFilter, .deleteFilterV2, .deleteFilterKeyword,
+             .unblockDomain, .removeAnnouncementReaction:
             return .delete
         }
     }
@@ -71,7 +78,8 @@ extension EmptyEndpoint: Endpoint {
             return ["account_ids": Array(accountIds)]
         case let .blockDomain(domain), let .unblockDomain(domain):
             return ["domain": domain]
-        case .deleteList, .deleteFilter, .dismissAnnouncement, .addAnnouncementReaction, .removeAnnouncementReaction:
+        case .deleteList, .deleteFilter, .deleteFilterV2, .deleteFilterKeyword,
+             .dismissAnnouncement, .addAnnouncementReaction, .removeAnnouncementReaction:
             return nil
         }
     }

@@ -10,13 +10,40 @@ struct FiltersView: View {
     var body: some View {
         Form {
             Section {
-                NavigationLink(destination: EditFilterView(
-                                viewModel: .init(filter: .new, identityContext: viewModel.identityContext))) {
-                    Label("add", systemImage: "plus.circle")
+                Toggle(isOn: .init(
+                    get: { viewModel.useFiltersV2 },
+                    set: { _ in viewModel.toggleUseFiltersV2() }
+                )) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("filter.use-v2")
+                        Text("filter.use-v2.subtitle")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
-            section(title: "filters.active", filters: viewModel.activeFilters)
-            section(title: "filters.expired", filters: viewModel.expiredFilters)
+
+            if viewModel.useFiltersV2 {
+                Section {
+                    NavigationLink(destination: EditFilterV2View(
+                                    viewModel: .init(filter: .new,
+                                                     identityContext: viewModel.identityContext))) {
+                        Label("add", systemImage: "plus.circle")
+                    }
+                }
+                v2Section(title: "filters.active", filters: viewModel.activeFiltersV2)
+                v2Section(title: "filters.expired", filters: viewModel.expiredFiltersV2)
+            } else {
+                Section {
+                    NavigationLink(destination: EditFilterView(
+                                    viewModel: .init(filter: .new,
+                                                     identityContext: viewModel.identityContext))) {
+                        Label("add", systemImage: "plus.circle")
+                    }
+                }
+                section(title: "filters.active", filters: viewModel.activeFilters)
+                section(title: "filters.expired", filters: viewModel.expiredFilters)
+            }
         }
         .navigationTitle("preferences.filters")
         .toolbar {
@@ -49,6 +76,40 @@ private extension FiltersView {
                     guard let index = $0.first else { return }
 
                     viewModel.delete(filter: filters[index])
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func v2Section(title: LocalizedStringKey, filters: [FilterV2]) -> some View {
+        if !filters.isEmpty {
+            Section(header: Text(title)) {
+                ForEach(filters) { filter in
+                    NavigationLink(destination: EditFilterV2View(
+                                    viewModel: .init(filter: filter,
+                                                     identityContext: viewModel.identityContext))) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(filter.title)
+                                Text(filter.keywords.map(\.keyword).joined(separator: ", "))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                            Text(filter.filterAction == .warn
+                                 ? NSLocalizedString("filter.action.warn", comment: "")
+                                 : NSLocalizedString("filter.action.hide", comment: ""))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .onDelete {
+                    guard let index = $0.first else { return }
+
+                    viewModel.deleteV2(filter: filters[index])
                 }
             }
         }

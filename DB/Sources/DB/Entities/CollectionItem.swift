@@ -24,6 +24,7 @@ public extension CollectionItem {
         public let isReplyInContext: Bool
         public let isReplyOutOfContext: Bool
         public let hasReplyFollowing: Bool
+        public let filterWarning: String?
 
         init(showContentToggled: Bool,
              showAttachmentsToggled: Bool,
@@ -31,7 +32,8 @@ public extension CollectionItem {
              isPinned: Bool = false,
              isReplyInContext: Bool = false,
              isReplyOutOfContext: Bool = false,
-             hasReplyFollowing: Bool = false) {
+             hasReplyFollowing: Bool = false,
+             filterWarning: String? = nil) {
             self.showContentToggled = showContentToggled
             self.showAttachmentsToggled = showAttachmentsToggled
             self.isContextParent = isContextParent
@@ -39,6 +41,7 @@ public extension CollectionItem {
             self.isReplyInContext = isReplyInContext
             self.isReplyOutOfContext = isReplyOutOfContext
             self.hasReplyFollowing = hasReplyFollowing
+            self.filterWarning = filterWarning
         }
     }
 

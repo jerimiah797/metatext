@@ -4,6 +4,7 @@ import Base16
 import Combine
 import DB
 import Foundation
+import HTTP
 import Mastodon
 import MastodonAPI
 import Secrets
@@ -142,8 +143,34 @@ public extension IdentityService {
         contentDatabase.listsPublisher()
     }
 
-    func refreshFilters() -> AnyPublisher<Never, Error> {
-        mastodonAPIClient.request(FiltersEndpoint.filters)
+    func refreshFilters(useFiltersV2: Bool = false) -> AnyPublisher<Never, Error> {
+        if useFiltersV2 {
+            return refreshFiltersV2()
+                .catch { [mastodonAPIClient, contentDatabase] error -> AnyPublisher<Never, Error> in
+                    // Fall back to v1 on 404 (server doesn't support v2)
+                    let is404: Bool
+                    if case HTTPError.invalidStatusCode(_, let response) = error,
+                       response.statusCode == 404 {
+                        is404 = true
+                    } else if let apiError = error as? APIError,
+                              apiError.httpStatusCode == 404 {
+                        is404 = true
+                    } else {
+                        is404 = false
+                    }
+
+                    if is404 {
+                        return mastodonAPIClient.request(FiltersEndpoint.filters)
+                            .flatMap(contentDatabase.setFilters(_:))
+                            .eraseToAnyPublisher()
+                    }
+
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+                .eraseToAnyPublisher()
+        }
+
+        return mastodonAPIClient.request(FiltersEndpoint.filters)
             .flatMap(contentDatabase.setFilters(_:))
             .eraseToAnyPublisher()
     }
@@ -181,6 +208,97 @@ public extension IdentityService {
 
     func expiredFiltersPublisher() -> AnyPublisher<[Filter], Error> {
         contentDatabase.expiredFiltersPublisher()
+    }
+
+    func refreshFiltersV2() -> AnyPublisher<Never, Error> {
+        mastodonAPIClient.request(FiltersV2Endpoint.filters)
+            .flatMap(contentDatabase.setFiltersV2(_:))
+            .eraseToAnyPublisher()
+    }
+
+    func createFilterV2(title: String, context: [Filter.Context],
+                        filterAction: FilterV2.Action,
+                        expiresIn: Date?,
+                        keywords: [FilterKeyword]) -> AnyPublisher<FilterV2, Error> {
+        mastodonAPIClient.request(FilterV2Endpoint.create(
+            title: title, context: context, filterAction: filterAction,
+            expiresIn: expiresIn, keywords: keywords))
+            .flatMap { [contentDatabase] filter -> AnyPublisher<FilterV2, Error> in
+                contentDatabase.createFilterV2(filter)
+                    .collect()
+                    .flatMap { _ in contentDatabase.invalidateFilteredStatuses().collect() }
+                    .flatMap { _ -> AnyPublisher<Never, Error> in
+                        if filter.filterAction == .hide {
+                            return contentDatabase.deleteStatusesMatching(
+                                keywords: filter.keywords, contexts: filter.context)
+                        }
+                        return Empty().eraseToAnyPublisher()
+                    }
+                    .collect()
+                    .map { _ in filter }
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func updateFilterV2(id: FilterV2.Id, title: String, context: [Filter.Context],
+                        filterAction: FilterV2.Action, expiresIn: Date?,
+                        keywords: [FilterKeyword],
+                        deletedKeywordIds: [FilterKeyword.Id]) -> AnyPublisher<FilterV2, Error> {
+        mastodonAPIClient.request(FilterV2Endpoint.update(
+            id: id, title: title, context: context, filterAction: filterAction,
+            expiresIn: expiresIn, keywords: keywords, deletedKeywordIds: deletedKeywordIds))
+            .flatMap { [contentDatabase] filter -> AnyPublisher<FilterV2, Error> in
+                contentDatabase.createFilterV2(filter)
+                    .collect()
+                    .flatMap { _ in contentDatabase.invalidateFilteredStatuses().collect() }
+                    .flatMap { _ -> AnyPublisher<Never, Error> in
+                        if filter.filterAction == .hide {
+                            return contentDatabase.deleteStatusesMatching(
+                                keywords: filter.keywords, contexts: filter.context)
+                        }
+                        return Empty().eraseToAnyPublisher()
+                    }
+                    .collect()
+                    .map { _ in filter }
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func deleteFilterV2(id: FilterV2.Id) -> AnyPublisher<Never, Error> {
+        mastodonAPIClient.request(EmptyEndpoint.deleteFilterV2(id: id))
+            .flatMap { [contentDatabase] _ in
+                contentDatabase.deleteFilterV2(id: id)
+                    .collect()
+                    .flatMap { _ in contentDatabase.invalidateFilteredStatuses() }
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func addKeyword(filterId: FilterV2.Id, keyword: String, wholeWord: Bool) -> AnyPublisher<FilterKeyword, Error> {
+        mastodonAPIClient.request(FilterKeywordEndpoint.create(
+            filterId: filterId, keyword: keyword, wholeWord: wholeWord))
+    }
+
+    func updateKeyword(id: FilterKeyword.Id, keyword: String, wholeWord: Bool) -> AnyPublisher<FilterKeyword, Error> {
+        mastodonAPIClient.request(FilterKeywordEndpoint.update(id: id, keyword: keyword, wholeWord: wholeWord))
+    }
+
+    func deleteKeyword(id: FilterKeyword.Id) -> AnyPublisher<Never, Error> {
+        mastodonAPIClient.request(EmptyEndpoint.deleteFilterKeyword(id: id))
+            .map { _ in }
+            .ignoreOutput()
+            .eraseToAnyPublisher()
+    }
+
+    func activeFiltersV2Publisher() -> AnyPublisher<[FilterV2], Error> {
+        contentDatabase.activeFiltersV2Publisher
+    }
+
+    func expiredFiltersV2Publisher() -> AnyPublisher<[FilterV2], Error> {
+        contentDatabase.expiredFiltersV2Publisher()
     }
 
     func announcementCountPublisher() -> AnyPublisher<(total: Int, unread: Int), Error> {

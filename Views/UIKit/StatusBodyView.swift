@@ -40,14 +40,28 @@ final class StatusBodyView: UIView {
                                       identityContext: viewModel.identityContext)
             mutableSpoilerText.resizeAttachments(toLineHeight: spoilerTextLabel.font.lineHeight)
             spoilerTextLabel.font = contentFont
-            spoilerTextLabel.attributedText = mutableSpoilerText
-            spoilerTextLabel.isHidden = spoilerTextLabel.text == ""
-            toggleShowContentButton.setTitle(
-                viewModel.shouldShowContent
-                    ? NSLocalizedString("status.show-less", comment: "")
-                    : NSLocalizedString("status.show-more", comment: ""),
-                for: .normal)
-            toggleShowContentButton.isHidden = viewModel.spoilerText.isEmpty
+            if let filterWarning = viewModel.filterWarning {
+                let filterText = String(
+                    format: NSLocalizedString("status.filtered", comment: ""),
+                    filterWarning)
+                spoilerTextLabel.attributedText = NSAttributedString(string: filterText)
+                spoilerTextLabel.isHidden = false
+                toggleShowContentButton.setTitle(
+                    viewModel.shouldShowContent
+                        ? NSLocalizedString("status.show-less", comment: "")
+                        : NSLocalizedString("status.show-anyway", comment: ""),
+                    for: .normal)
+                toggleShowContentButton.isHidden = false
+            } else {
+                spoilerTextLabel.attributedText = mutableSpoilerText
+                spoilerTextLabel.isHidden = spoilerTextLabel.text == ""
+                toggleShowContentButton.setTitle(
+                    viewModel.shouldShowContent
+                        ? NSLocalizedString("status.show-less", comment: "")
+                        : NSLocalizedString("status.show-more", comment: ""),
+                    for: .normal)
+                toggleShowContentButton.isHidden = viewModel.spoilerText.isEmpty
+            }
 
             contentTextView.isHidden = !viewModel.shouldShowContent
 
@@ -218,6 +232,7 @@ private extension StatusBodyView {
         spoilerTextLabel.adjustsFontForContentSizeCategory = true
         stackView.addArrangedSubview(spoilerTextLabel)
 
+        toggleShowContentButton.accessibilityIdentifier = "status.toggle-content"
         toggleShowContentButton.addAction(
             UIAction { [weak self] _ in self?.viewModel?.toggleShowContent() },
             for: .touchUpInside)

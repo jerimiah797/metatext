@@ -31,6 +31,14 @@ extension Status {
 
 private extension Status {
     convenience init(record: StatusRecord, account: Account, reblog: Status?) {
+        let filtered: [FilterResult]
+
+        if let data = record.filteredJSON {
+            filtered = (try? MastodonDecoder().decode([FilterResult].self, from: data)) ?? []
+        } else {
+            filtered = []
+        }
+
         self.init(
             id: record.id,
             uri: record.uri,
@@ -61,6 +69,7 @@ private extension Status {
             muted: record.muted,
             bookmarked: record.bookmarked,
             pinned: record.pinned,
-            editedAt: record.editedAt)
+            editedAt: record.editedAt,
+            filtered: filtered)
     }
 }

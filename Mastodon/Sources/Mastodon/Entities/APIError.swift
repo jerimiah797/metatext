@@ -4,6 +4,11 @@ import Foundation
 
 public struct APIError: Error, Codable {
     public let error: String
+    public var httpStatusCode: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case error
+    }
 }
 
 extension APIError: LocalizedError {

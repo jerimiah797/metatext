@@ -302,6 +302,28 @@ extension ContentDatabase {
             }
         }
 
+        migrator.registerMigration("2.1.0-filters-v2") { db in
+            try db.create(table: "filterV2Record") { t in
+                t.column("id", .text).primaryKey(onConflict: .replace)
+                t.column("title", .text).notNull()
+                t.column("context", .blob).notNull()
+                t.column("expiresAt", .date).indexed()
+                t.column("filterAction", .text).notNull()
+            }
+
+            try db.create(table: "filterKeywordRecord") { t in
+                t.column("id", .text).primaryKey(onConflict: .replace)
+                t.column("filterId", .text).notNull()
+                    .references("filterV2Record", onDelete: .cascade)
+                t.column("keyword", .text).notNull()
+                t.column("wholeWord", .boolean).notNull()
+            }
+
+            try db.alter(table: "statusRecord") { t in
+                t.add(column: "filteredJSON", .blob)
+            }
+        }
+
         return migrator
     }
 }

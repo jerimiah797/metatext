@@ -34,7 +34,7 @@ public struct NavigationService {
 }
 
 public extension NavigationService {
-    func item(url: URL) -> AnyPublisher<Navigation, Never> {
+    func item(url: URL, useFiltersV2: Bool = false) -> AnyPublisher<Navigation, Never> {
         if let tag = tag(url: url) {
             return Just(
                 .collection(
@@ -42,12 +42,13 @@ public extension NavigationService {
                         timeline: .tag(tag),
                         environment: environment,
                         mastodonAPIClient: mastodonAPIClient,
-                        contentDatabase: contentDatabase)))
+                        contentDatabase: contentDatabase,
+                        useFiltersV2: useFiltersV2)))
                 .eraseToAnyPublisher()
         } else if let accountId = accountId(url: url) {
             return Just(.profile(profileService(id: accountId))).eraseToAnyPublisher()
         } else if mastodonAPIClient.instanceURL.host == url.host, let statusId = url.statusId {
-            return Just(.collection(contextService(id: statusId))).eraseToAnyPublisher()
+            return Just(.collection(contextService(id: statusId, useFiltersV2: useFiltersV2))).eraseToAnyPublisher()
         }
 
         if url.shouldWebfinger {
@@ -57,10 +58,11 @@ public extension NavigationService {
         }
     }
 
-    func contextService(id: Status.Id) -> ContextService {
+    func contextService(id: Status.Id, useFiltersV2: Bool = false) -> ContextService {
         ContextService(id: id, environment: environment,
                        mastodonAPIClient: mastodonAPIClient,
-                       contentDatabase: contentDatabase)
+                       contentDatabase: contentDatabase,
+                       useFiltersV2: useFiltersV2)
     }
 
     func profileService(id: Account.Id) -> ProfileService {
@@ -119,11 +121,12 @@ public extension NavigationService {
                             contentDatabase: contentDatabase)
     }
 
-    func timelineService(timeline: Timeline) -> TimelineService {
+    func timelineService(timeline: Timeline, useFiltersV2: Bool = false) -> TimelineService {
         TimelineService(timeline: timeline,
                         environment: environment,
                         mastodonAPIClient: mastodonAPIClient,
-                        contentDatabase: contentDatabase)
+                        contentDatabase: contentDatabase,
+                        useFiltersV2: useFiltersV2)
     }
 }
 

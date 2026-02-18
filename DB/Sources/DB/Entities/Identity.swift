@@ -49,6 +49,7 @@ public extension Identity {
         public var postingDefaultLanguage: String?
         @DecodableDefault.ExpandMediaDefault public var readingExpandMedia: Mastodon.Preferences.ExpandMedia
         @DecodableDefault.False public var readingExpandSpoilers
+        @DecodableDefault.True public var useFiltersV2
     }
 
     var handle: String {

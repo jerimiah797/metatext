@@ -43,6 +43,7 @@ public final class Status: Codable, Identifiable {
     @DecodableDefault.False public private(set) var bookmarked: Bool
     public let pinned: Bool?
     public let editedAt: Date?
+    @DecodableDefault.EmptyList public private(set) var filtered: [FilterResult]
 
     public init(
         id: Status.Id,
@@ -74,7 +75,8 @@ public final class Status: Codable, Identifiable {
         muted: Bool,
         bookmarked: Bool,
         pinned: Bool?,
-        editedAt: Date? = nil) {
+        editedAt: Date? = nil,
+        filtered: [FilterResult] = []) {
         self.id = id
         self.uri = uri
         self.createdAt = createdAt
@@ -105,6 +107,7 @@ public final class Status: Codable, Identifiable {
         self.reblogged = reblogged
         self.muted = muted
         self.bookmarked = bookmarked
+        self.filtered = filtered
     }
 }
 

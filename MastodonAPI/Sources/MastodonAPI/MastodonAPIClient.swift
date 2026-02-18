@@ -18,8 +18,9 @@ public final class MastodonAPIClient: HTTPClient {
         _ target: T, progress: Progress? = nil) -> AnyPublisher<(data: Data, response: HTTPURLResponse), Error> {
         super.dataTaskPublisher(target, progress: progress)
             .mapError { [weak self] error -> Error in
-                if case let HTTPError.invalidStatusCode(data, _) = error,
-                   let apiError = try? self?.decoder.decode(APIError.self, from: data) {
+                if case let HTTPError.invalidStatusCode(data, response) = error,
+                   var apiError = try? self?.decoder.decode(APIError.self, from: data) {
+                    apiError.httpStatusCode = response.statusCode
                     return apiError
                 }
 

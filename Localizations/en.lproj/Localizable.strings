@@ -272,6 +272,16 @@
 "filter.context.thread" = "Conversations";
 "filter.context.account" = "Profiles";
 "filter.context.unknown" = "Unknown context";
+"filter.use-v2" = "Use new filter format";
+"filter.use-v2.subtitle" = "Requires Mastodon 4.0 or GoToSocial 0.17+";
+"filter.title" = "Filter Name";
+"filter.action" = "Action";
+"filter.action.warn" = "Warn";
+"filter.action.hide" = "Hide";
+"filter.keywords" = "Keywords";
+"filter.keyword.add" = "Add Keyword";
+"status.filtered" = "Filtered: %@";
+"status.show-anyway" = "Show anyway";
 "more-results.accounts" = "More people";
 "more-results.statuses.post" = "More posts";
 "more-results.statuses.toot" = "More toots";

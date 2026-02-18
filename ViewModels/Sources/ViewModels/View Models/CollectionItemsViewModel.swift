@@ -285,9 +285,11 @@ extension CollectionItemsViewModel: CollectionViewModel {
 
         switch item {
         case let .status(status, _, _):
+            let v2 = identityContext.identity.preferences.useFiltersV2
             send(event: .navigation(.collection(collectionService
                                                     .navigationService
-                                                    .contextService(id: status.displayStatus.id))))
+                                                    .contextService(id: status.displayStatus.id,
+                                                                    useFiltersV2: v2))))
         case let .loadMore(loadMore):
             lastSelectedLoadMore = loadMore
             (viewModel(indexPath: indexPath) as? LoadMoreViewModel)?.loadMore()
@@ -297,9 +299,11 @@ extension CollectionItemsViewModel: CollectionViewModel {
                                                 .profileService(account: account, relationship: relationship))))
         case let .notification(notification, _):
             if let status = notification.status {
+                let v2 = identityContext.identity.preferences.useFiltersV2
                 send(event: .navigation(.collection(collectionService
                                                         .navigationService
-                                                        .contextService(id: status.displayStatus.id))))
+                                                        .contextService(id: status.displayStatus.id,
+                                                                        useFiltersV2: v2))))
             } else {
                 send(event: .navigation(.profile(collectionService
                                                     .navigationService
@@ -312,13 +316,17 @@ extension CollectionItemsViewModel: CollectionViewModel {
                 .sink { _ in } receiveValue: { _ in }
                 .store(in: &cancellables)
 
+            let v2 = identityContext.identity.preferences.useFiltersV2
             send(event: .navigation(.collection(collectionService
                                                     .navigationService
-                                                    .contextService(id: status.displayStatus.id))))
+                                                    .contextService(id: status.displayStatus.id,
+                                                                    useFiltersV2: v2))))
         case let .tag(tag):
+            let v2 = identityContext.identity.preferences.useFiltersV2
             send(event: .navigation(.collection(collectionService
                                                     .navigationService
-                                                    .timelineService(timeline: .tag(tag.name)))))
+                                                    .timelineService(timeline: .tag(tag.name),
+                                                                     useFiltersV2: v2))))
         case .announcement:
             break
         case let .moreResults(moreResults):

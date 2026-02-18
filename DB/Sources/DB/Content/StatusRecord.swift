@@ -35,6 +35,7 @@ struct StatusRecord: ContentDatabaseRecord, Hashable {
     let bookmarked: Bool
     let pinned: Bool?
     let editedAt: Date?
+    let filteredJSON: Data?
 }
 
 extension StatusRecord {
@@ -69,6 +70,7 @@ extension StatusRecord {
         static let bookmarked = Column(CodingKeys.bookmarked)
         static let pinned = Column(CodingKeys.pinned)
         static let editedAt = Column(CodingKeys.editedAt)
+        static let filteredJSON = Column(CodingKeys.filteredJSON)
     }
 }
 
@@ -159,5 +161,6 @@ extension StatusRecord {
         bookmarked = status.bookmarked
         pinned = status.pinned
         editedAt = status.editedAt
+        filteredJSON = status.filtered.isEmpty ? nil : try? ContentDatabaseJSONEncoder().encode(status.filtered)
     }
 }

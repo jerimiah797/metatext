@@ -17,11 +17,12 @@ public struct ContextService {
     init(id: Status.Id,
          environment: AppEnvironment,
          mastodonAPIClient: MastodonAPIClient,
-         contentDatabase: ContentDatabase) {
+         contentDatabase: ContentDatabase,
+         useFiltersV2: Bool = false) {
         self.id = id
         self.mastodonAPIClient = mastodonAPIClient
         self.contentDatabase = contentDatabase
-        sections = contentDatabase.contextPublisher(id: id)
+        sections = contentDatabase.contextPublisher(id: id, useFiltersV2: useFiltersV2)
         navigationService = NavigationService(environment: environment,
                                               mastodonAPIClient: mastodonAPIClient,
                                               contentDatabase: contentDatabase)

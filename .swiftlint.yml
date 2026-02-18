@@ -7,6 +7,7 @@ opt_in_rules:
 excluded:
   - DerivedData
   - .build
+  - build
 
 file_length:
   warning: 500

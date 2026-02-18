@@ -53,7 +53,13 @@ public final class StatusViewModel: AttachmentsRenderingViewModel, ObservableObj
 public extension StatusViewModel {
     var isMine: Bool { statusService.status.displayStatus.account.id == identityContext.identity.account?.id }
 
+    var filterWarning: String? { configuration.filterWarning }
+
     var shouldShowContent: Bool {
+        if let filterWarning = filterWarning, !filterWarning.isEmpty {
+            return configuration.showContentToggled
+        }
+
         guard spoilerText != "" else { return true }
 
         if identityContext.identity.preferences.readingExpandSpoilers {
@@ -205,7 +211,8 @@ public extension StatusViewModel {
 
     func urlSelected(_ url: URL) {
         eventsSubject.send(
-            statusService.navigationService.item(url: url)
+            statusService.navigationService.item(
+                url: url, useFiltersV2: identityContext.identity.preferences.useFiltersV2)
                 .map { .navigation($0) }
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher())
