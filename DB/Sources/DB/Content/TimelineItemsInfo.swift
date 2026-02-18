@@ -41,43 +41,24 @@ extension TimelineItemsInfo {
         let filterRegularExpression = useFiltersV2 ? nil : v1Filters.regularExpression(context: timeline.filterContext)
         var timelineItems = statusInfos.filtered(regularExpression: filterRegularExpression)
             .compactMap { statusInfo -> CollectionItem? in
+                var filterWarning: String?
+
                 if useFiltersV2 {
                     let status = Status(info: statusInfo)
                     let effectiveFiltered = status.filtered.isEmpty
                         ? status.displayStatus.filtered
                         : status.filtered
 
-                    var filterWarning: String?
+                    let evaluation = FilterV2Evaluator.evaluate(
+                        serverAnnotations: effectiveFiltered,
+                        content: statusInfo.filterableContent,
+                        filterContext: timeline.filterContext,
+                        v2Filters: v2Filters)
 
-                    if !effectiveFiltered.isEmpty {
-                        if effectiveFiltered.contains(where: { $0.filter.filterAction == .hide }) {
-                            return nil
-                        }
-
-                        filterWarning = effectiveFiltered
-                            .first(where: { $0.filter.filterAction == .warn })?.filter.title
-                    } else if !v2Filters.isEmpty {
-                        // Client-side fallback for cached statuses without server-side annotations
-                        let content = statusInfo.filterableContent
-                        for filter in v2Filters {
-                            guard filter.context.contains(where: { $0 == timeline.filterContext }) else { continue }
-                            if let exp = filter.expiresAt, exp < Date() { continue }
-                            if Self.filterMatches(filter, content: content) {
-                                if filter.filterAction == .hide { return nil }
-                                if filter.filterAction == .warn { filterWarning = filter.title; break }
-                            }
-                        }
-                    }
-
-                    if filterWarning != nil {
-                        return .status(
-                            status,
-                            .init(showContentToggled: statusInfo.showContentToggled,
-                                  showAttachmentsToggled: statusInfo.showAttachmentsToggled,
-                                  isReplyOutOfContext: (statusInfo.reblogRecord ?? statusInfo.record)
-                                    .inReplyToId != nil,
-                                  filterWarning: filterWarning),
-                            statusInfo.reblogRelationship ?? statusInfo.relationship)
+                    switch evaluation {
+                    case .hide: return nil
+                    case .warn(let title): filterWarning = title
+                    case .pass: break
                     }
                 }
 
@@ -85,7 +66,8 @@ extension TimelineItemsInfo {
                     .init(info: statusInfo),
                     .init(showContentToggled: statusInfo.showContentToggled,
                           showAttachmentsToggled: statusInfo.showAttachmentsToggled,
-                          isReplyOutOfContext: (statusInfo.reblogRecord ?? statusInfo.record).inReplyToId != nil),
+                          isReplyOutOfContext: (statusInfo.reblogRecord ?? statusInfo.record).inReplyToId != nil,
+                          filterWarning: filterWarning),
                     statusInfo.reblogRelationship ?? statusInfo.relationship)
             }
 
@@ -122,26 +104,6 @@ extension TimelineItemsInfo {
         }
     }
 
-    private static func filterMatches(_ filter: FilterV2, content: String) -> Bool {
-        guard !filter.keywords.isEmpty else { return false }
-
-        let pattern = filter.keywords.map { kw in
-            var expression = NSRegularExpression.escapedPattern(for: kw.keyword)
-
-            if kw.wholeWord {
-                if expression.range(of: #"^[\w]"#, options: .regularExpression) != nil {
-                    expression = #"\b"#.appending(expression)
-                }
-                if expression.range(of: #"[\w]$"#, options: .regularExpression) != nil {
-                    expression.append(#"\b"#)
-                }
-            }
-
-            return expression
-        }.joined(separator: "|")
-
-        return content.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
-    }
 }
 
 extension TimelineItemsInfo.PinnedStatusesInfo {

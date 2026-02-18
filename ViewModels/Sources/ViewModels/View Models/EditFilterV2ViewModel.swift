@@ -58,7 +58,9 @@ public extension EditFilterV2ViewModel {
     }
 
     func removeKeyword(at offsets: IndexSet) {
-        keywords.remove(atOffsets: offsets)
+        for index in offsets.sorted().reversed() {
+            keywords.remove(at: index)
+        }
     }
 
     func save() {

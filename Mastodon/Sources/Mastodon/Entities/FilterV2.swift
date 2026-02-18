@@ -77,4 +77,10 @@ public struct FilterResult: Codable, Hashable {
     public let filter: FilterV2
     public let keywordMatches: [String]?
     public let statusMatches: [String]?
+
+    public init(filter: FilterV2, keywordMatches: [String]? = nil, statusMatches: [String]? = nil) {
+        self.filter = filter
+        self.keywordMatches = keywordMatches
+        self.statusMatches = statusMatches
+    }
 }

@@ -42,24 +42,16 @@ extension ContextItemsInfo {
                             ? status.displayStatus.filtered
                             : status.filtered
 
-                        if !effectiveFiltered.isEmpty {
-                            if effectiveFiltered.contains(where: { $0.filter.filterAction == .hide }) {
-                                return nil
-                            }
+                        let evaluation = FilterV2Evaluator.evaluate(
+                            serverAnnotations: effectiveFiltered,
+                            content: statusInfo.filterableContent,
+                            filterContext: .thread,
+                            v2Filters: v2Filters)
 
-                            filterWarning = effectiveFiltered
-                                .first(where: { $0.filter.filterAction == .warn })?.filter.title
-                        } else if !v2Filters.isEmpty {
-                            // Client-side fallback for cached statuses without server-side annotations
-                            let content = statusInfo.filterableContent
-                            for filter in v2Filters {
-                                guard filter.context.contains(.thread) else { continue }
-                                if let exp = filter.expiresAt, exp < Date() { continue }
-                                if Self.filterMatches(filter, content: content) {
-                                    if filter.filterAction == .hide { return nil }
-                                    if filter.filterAction == .warn { filterWarning = filter.title; break }
-                                }
-                            }
+                        switch evaluation {
+                        case .hide: return nil
+                        case .warn(let title): filterWarning = title
+                        case .pass: break
                         }
                     }
 
@@ -91,24 +83,4 @@ extension ContextItemsInfo {
         .map { CollectionSection(items: $0) }
     }
 
-    private static func filterMatches(_ filter: FilterV2, content: String) -> Bool {
-        guard !filter.keywords.isEmpty else { return false }
-
-        let pattern = filter.keywords.map { kw in
-            var expression = NSRegularExpression.escapedPattern(for: kw.keyword)
-
-            if kw.wholeWord {
-                if expression.range(of: #"^[\w]"#, options: .regularExpression) != nil {
-                    expression = #"\b"#.appending(expression)
-                }
-                if expression.range(of: #"[\w]$"#, options: .regularExpression) != nil {
-                    expression.append(#"\b"#)
-                }
-            }
-
-            return expression
-        }.joined(separator: "|")
-
-        return content.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
-    }
 }

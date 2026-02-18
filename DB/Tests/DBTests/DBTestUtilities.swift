@@ -209,6 +209,28 @@ enum TestData {
         return try! decoder.decode(Announcement.self, from: json)
     }
 
+    static func makeFilterV2(id: String = "filter1",
+                              title: String = "Test Filter",
+                              context: [Filter.Context] = [.home, .public],
+                              expiresAt: Date? = nil,
+                              filterAction: FilterV2.Action = .warn,
+                              keywords: [FilterKeyword] = []) -> FilterV2 {
+        FilterV2(id: id, title: title, context: context,
+                 expiresAt: expiresAt, filterAction: filterAction,
+                 keywords: keywords, statuses: [])
+    }
+
+    static func makeFilterKeyword(id: String = "kw1",
+                                  keyword: String = "filtered",
+                                  wholeWord: Bool = true) -> FilterKeyword {
+        FilterKeyword(id: id, keyword: keyword, wholeWord: wholeWord)
+    }
+
+    static func makeFilterResult(filter: FilterV2,
+                                 keywordMatches: [String]? = nil) -> FilterResult {
+        FilterResult(filter: filter, keywordMatches: keywordMatches)
+    }
+
     static func makeHTML(_ string: String = "") -> HTML {
         let decoder = MastodonDecoder()
         let jsonString = string.replacingOccurrences(of: "\\", with: "\\\\")
