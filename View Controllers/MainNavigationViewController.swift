@@ -223,7 +223,7 @@ private extension MainNavigationViewController {
         let navigationController = UINavigationController(rootViewController: newStatusViewController)
 
         if UIDevice.current.userInterfaceIdiom == .phone {
-            navigationController.modalPresentationStyle = .overFullScreen
+            navigationController.modalPresentationStyle = .fullScreen
         } else {
             navigationController.isModalInPresentation = true
         }
