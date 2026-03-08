@@ -115,6 +115,7 @@ private extension NotificationView {
         avatarHeightConstraint.priority = .justBelowMax
 
         avatarButton.translatesAutoresizingMaskIntoConstraints = false
+        avatarButton.accessibilityIdentifier = "notification.avatar"
         avatarImageView.addSubview(avatarButton)
         avatarImageView.isUserInteractionEnabled = true
         avatarButton.setBackgroundImage(.highlightedButtonBackground, for: .highlighted)

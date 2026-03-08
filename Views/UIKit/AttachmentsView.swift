@@ -174,6 +174,7 @@ private extension AttachmentsView {
         hideButtonBackground.clipsToBounds = true
         hideButtonBackground.layer.cornerRadius = .defaultCornerRadius
 
+        hideButton.accessibilityIdentifier = "attachments.hide"
         hideButton.addAction(toggleShowAttachmentsAction, for: .touchUpInside)
         hideButtonBackground.contentView.addSubview(hideButton)
         hideButton.translatesAutoresizingMaskIntoConstraints = false
@@ -184,6 +185,7 @@ private extension AttachmentsView {
         curtain.translatesAutoresizingMaskIntoConstraints = false
         curtain.contentView.addSubview(curtainButton)
 
+        curtainButton.accessibilityIdentifier = "attachments.show"
         curtainButton.addAction(toggleShowAttachmentsAction, for: .touchUpInside)
         curtainButton.translatesAutoresizingMaskIntoConstraints = false
         curtainButton.titleLabel?.font = .preferredFont(forTextStyle: .headline)

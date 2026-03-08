@@ -212,12 +212,14 @@ private extension PollView {
         stackView.axis = .vertical
         stackView.spacing = .defaultSpacing
 
+        voteButton.accessibilityIdentifier = "poll.vote"
         voteButton.setTitle(NSLocalizedString("status.poll.vote", comment: ""), for: .normal)
         voteButton.addAction(UIAction { [weak self] _ in self?.viewModel?.vote() }, for: .touchUpInside)
 
         bottomStackView.spacing = .compactSpacing
 
         bottomStackView.addArrangedSubview(refreshButton)
+        refreshButton.accessibilityIdentifier = "poll.refresh"
         refreshButton.titleLabel?.font = .preferredFont(forTextStyle: .caption1)
         refreshButton.titleLabel?.adjustsFontForContentSizeCategory = true
         refreshButton.setTitle(NSLocalizedString("status.poll.refresh", comment: ""), for: .normal)

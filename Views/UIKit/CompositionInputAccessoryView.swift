@@ -126,6 +126,7 @@ private extension CompositionInputAccessoryView {
             image: UIImage(systemName: "paperclip"),
             menu: UIMenu(children: attachmentActions))
 
+        attachmentButton.accessibilityIdentifier = "compose.attachment"
         attachmentButton.accessibilityLabel =
             NSLocalizedString("compose.attachments-button.accessibility-label", comment: "")
 
@@ -133,16 +134,19 @@ private extension CompositionInputAccessoryView {
             image: UIImage(systemName: "chart.bar.xaxis"),
             primaryAction: UIAction { [weak self] _ in self?.viewModel.displayPoll.toggle() })
 
+        pollButton.accessibilityIdentifier = "compose.poll"
         pollButton.accessibilityLabel = NSLocalizedString("compose.poll-button.accessibility-label", comment: "")
 
         let visibilityButton = UIBarButtonItem(
             image: UIImage(systemName: parentViewModel.visibility.systemImageName),
             menu: visibilityMenu(selectedVisibility: parentViewModel.visibility))
+        visibilityButton.accessibilityIdentifier = "compose.visibility"
         visibilityButton.isEnabled = parentViewModel.canChangeVisibility
 
         let contentWarningButton = UIBarButtonItem(
             title: NSLocalizedString("status.content-warning-abbreviation", comment: ""),
             primaryAction: UIAction { [weak self] _ in self?.viewModel.displayContentWarning.toggle() })
+        contentWarningButton.accessibilityIdentifier = "compose.content-warning"
 
         viewModel.$displayContentWarning.sink {
             if $0 {
@@ -163,6 +167,7 @@ private extension CompositionInputAccessoryView {
                 self.parentViewModel.presentEmojiPicker(tag: self.tagForInputView)
             })
 
+        emojiButton.accessibilityIdentifier = "compose.emoji"
         emojiButton.accessibilityLabel = NSLocalizedString("compose.emoji-button", comment: "")
 
         let addButton = UIBarButtonItem(

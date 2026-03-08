@@ -119,6 +119,7 @@ private extension AccountView {
         let largeTitlePointSize = UIFont.preferredFont(forTextStyle: .largeTitle).pointSize
 
         stackView.addArrangedSubview(acceptFollowRequestButton)
+        acceptFollowRequestButton.accessibilityIdentifier = "account.accept-follow-request"
         acceptFollowRequestButton.setImage(
             UIImage(systemName: "checkmark.circle",
                     withConfiguration: UIImage.SymbolConfiguration(pointSize: largeTitlePointSize)),
@@ -129,6 +130,7 @@ private extension AccountView {
             for: .touchUpInside)
 
         stackView.addArrangedSubview(rejectFollowRequestButton)
+        rejectFollowRequestButton.accessibilityIdentifier = "account.reject-follow-request"
         rejectFollowRequestButton.setImage(
             UIImage(systemName: "xmark.circle",
                     withConfiguration: UIImage.SymbolConfiguration(pointSize: largeTitlePointSize)),
@@ -140,6 +142,7 @@ private extension AccountView {
             for: .touchUpInside)
 
         stackView.addArrangedSubview(muteButton)
+        muteButton.accessibilityIdentifier = "account.mute"
         muteButton.setTitle(NSLocalizedString("account.mute", comment: ""), for: .normal)
         muteButton.titleLabel?.adjustsFontForContentSizeCategory = true
         muteButton.titleLabel?.font = .preferredFont(forTextStyle: .callout)
@@ -149,6 +152,7 @@ private extension AccountView {
         muteButton.isHidden = true
 
         stackView.addArrangedSubview(unmuteButton)
+        unmuteButton.accessibilityIdentifier = "account.unmute"
         unmuteButton.setTitle(NSLocalizedString("account.unmute", comment: ""), for: .normal)
         unmuteButton.titleLabel?.adjustsFontForContentSizeCategory = true
         unmuteButton.titleLabel?.font = .preferredFont(forTextStyle: .callout)
@@ -158,6 +162,7 @@ private extension AccountView {
         unmuteButton.isHidden = true
 
         stackView.addArrangedSubview(blockButton)
+        blockButton.accessibilityIdentifier = "account.block"
         blockButton.setTitle(NSLocalizedString("account.block", comment: ""), for: .normal)
         blockButton.titleLabel?.adjustsFontForContentSizeCategory = true
         blockButton.titleLabel?.font = .preferredFont(forTextStyle: .callout)
@@ -167,6 +172,7 @@ private extension AccountView {
         blockButton.isHidden = true
 
         stackView.addArrangedSubview(unblockButton)
+        unblockButton.accessibilityIdentifier = "account.unblock"
         unblockButton.setTitle(NSLocalizedString("account.unblock", comment: ""), for: .normal)
         unblockButton.titleLabel?.adjustsFontForContentSizeCategory = true
         unblockButton.titleLabel?.font = .preferredFont(forTextStyle: .callout)
