@@ -36,6 +36,7 @@ final class TimelinesViewController: UIPageViewController {
 
         if let firstViewController = timelineViewControllers.first {
             setViewControllers([firstViewController], direction: .forward, animated: false)
+            updateAccessibilityVisibility(activeViewController: firstViewController)
         }
 
         tabBarItem = UITabBarItem(
@@ -97,10 +98,13 @@ final class TimelinesViewController: UIPageViewController {
                       self.segmentedControl.selectedSegmentIndex != currentIndex
                 else { return }
 
+                let nextViewController = self.timelineViewControllers[self.segmentedControl.selectedSegmentIndex]
+
                 self.setViewControllers(
-                    [self.timelineViewControllers[self.segmentedControl.selectedSegmentIndex]],
+                    [nextViewController],
                     direction: self.segmentedControl.selectedSegmentIndex > currentIndex ? .forward : .reverse,
                     animated: !UIAccessibility.isReduceMotionEnabled)
+                self.updateAccessibilityVisibility(activeViewController: nextViewController)
             },
             for: .valueChanged)
     }
@@ -140,6 +144,15 @@ extension TimelinesViewController: UIPageViewControllerDelegate {
         else { return }
 
         segmentedControl.selectedSegmentIndex = index
+        updateAccessibilityVisibility(activeViewController: viewController)
+    }
+}
+
+private extension TimelinesViewController {
+    func updateAccessibilityVisibility(activeViewController: TableViewController) {
+        for viewController in timelineViewControllers {
+            viewController.view.accessibilityElementsHidden = viewController !== activeViewController
+        }
     }
 }
 

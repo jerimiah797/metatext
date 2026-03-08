@@ -38,6 +38,7 @@ final class NotificationsViewController: UIPageViewController {
 
         if let firstViewController = notificationViewControllers.first {
             setViewControllers([firstViewController], direction: .forward, animated: false)
+            updateAccessibilityVisibility(activeViewController: firstViewController)
         }
 
         tabBarItem = NavigationViewModel.Tab.notifications.tabBarItem
@@ -64,10 +65,13 @@ final class NotificationsViewController: UIPageViewController {
                       self.segmentedControl.selectedSegmentIndex != currentIndex
                 else { return }
 
+                let nextViewController = self.notificationViewControllers[self.segmentedControl.selectedSegmentIndex]
+
                 self.setViewControllers(
-                    [self.notificationViewControllers[self.segmentedControl.selectedSegmentIndex]],
+                    [nextViewController],
                     direction: self.segmentedControl.selectedSegmentIndex > currentIndex ? .forward : .reverse,
                     animated: !UIAccessibility.isReduceMotionEnabled)
+                self.updateAccessibilityVisibility(activeViewController: nextViewController)
             },
             for: .valueChanged)
     }
@@ -122,6 +126,15 @@ extension NotificationsViewController: UIPageViewControllerDelegate {
         else { return }
 
         segmentedControl.selectedSegmentIndex = index
+        updateAccessibilityVisibility(activeViewController: viewController)
+    }
+}
+
+private extension NotificationsViewController {
+    func updateAccessibilityVisibility(activeViewController: TableViewController) {
+        for viewController in notificationViewControllers {
+            viewController.view.accessibilityElementsHidden = viewController !== activeViewController
+        }
     }
 }
 
