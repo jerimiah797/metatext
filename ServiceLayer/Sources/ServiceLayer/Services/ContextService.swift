@@ -33,8 +33,12 @@ extension ContextService: CollectionService {
     public func request(maxId: String?, minId: String?, search: Search?) -> AnyPublisher<Never, Error> {
         mastodonAPIClient.request(StatusEndpoint.status(id: id))
             .flatMap(contentDatabase.insert(status:))
+            .timeout(.seconds(Self.requestTimeoutInterval), scheduler: DispatchQueue.main)
+            .catch { _ in Empty() }
             .merge(with: mastodonAPIClient.request(ContextEndpoint.context(id: id))
-                    .flatMap { contentDatabase.insert(context: $0, parentId: id) })
+                    .flatMap { contentDatabase.insert(context: $0, parentId: id) }
+                    .timeout(.seconds(Self.requestTimeoutInterval), scheduler: DispatchQueue.main)
+                    .catch { _ in Empty() })
             .eraseToAnyPublisher()
     }
 
@@ -45,4 +49,8 @@ extension ContextService: CollectionService {
     public func collapse(ids: Set<Status.Id>) -> AnyPublisher<Never, Error> {
         contentDatabase.collapse(ids: ids)
     }
+}
+
+private extension ContextService {
+    static let requestTimeoutInterval: TimeInterval = 30
 }
