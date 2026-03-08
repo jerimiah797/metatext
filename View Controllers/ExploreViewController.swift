@@ -24,6 +24,7 @@ final class ExploreViewController: UICollectionViewController {
             title: NSLocalizedString("main-navigation.explore", comment: ""),
             image: UIImage(systemName: "magnifyingglass"),
             selectedImage: nil)
+        tabBarItem.accessibilityIdentifier = "tab.explore"
     }
 
     @available(*, unavailable)
@@ -60,6 +61,8 @@ final class ExploreViewController: UICollectionViewController {
 
         searchController.searchResultsUpdater = self
         searchController.searchBar.keyboardType = .twitter
+        searchController.searchBar.accessibilityIdentifier = "explore.search-bar"
+        searchController.searchBar.searchTextField.accessibilityIdentifier = "explore.search-field"
         navigationItem.searchController = searchController
 
         view.addSubview(webfingerIndicatorView)

@@ -28,6 +28,8 @@ extension NavigationViewModel.Tab {
     }
 
     var tabBarItem: UITabBarItem {
-        UITabBarItem(title: title, image: UIImage(systemName: systemImageName), selectedImage: nil)
+        let item = UITabBarItem(title: title, image: UIImage(systemName: systemImageName), selectedImage: nil)
+        item.accessibilityIdentifier = "tab.\(self)"
+        return item
     }
 }

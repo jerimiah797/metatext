@@ -94,6 +94,8 @@ private extension AddIdentityViewController {
         urlTextField.autocorrectionType = .no
         urlTextField.keyboardType = .URL
         urlTextField.placeholder = NSLocalizedString("add-identity.instance-url", comment: "")
+        urlTextField.accessibilityIdentifier = "add-identity.url-field"
+        urlTextField.accessibilityLabel = NSLocalizedString("add-identity.instance-url", comment: "")
         urlTextField.addAction(
             UIAction { [weak self] _ in self?.viewModel.urlFieldText = self?.urlTextField.text ?? "" },
             for: .editingChanged)
@@ -128,6 +130,7 @@ private extension AddIdentityViewController {
         activityIndicator.hidesWhenStopped = true
 
         logInButton.setTitle(NSLocalizedString("add-identity.log-in", comment: ""), for: .normal)
+        logInButton.accessibilityIdentifier = "add-identity.log-in"
         logInButton.addAction(
             UIAction { [weak self] _ in
                 self?.urlTextField.resignFirstResponder()
@@ -135,10 +138,12 @@ private extension AddIdentityViewController {
             },
             for: .touchUpInside)
 
+        joinButton.accessibilityIdentifier = "add-identity.join"
         joinButton.addAction(UIAction { [weak self] _ in self?.join() }, for: .touchUpInside)
         joinButton.isHidden_stackViewSafe = true
 
         browseButton.setTitle(NSLocalizedString("add-identity.browse", comment: ""), for: .normal)
+        browseButton.accessibilityIdentifier = "add-identity.browse"
         browseButton.addAction(
             UIAction { [weak self] _ in self?.viewModel.browseTapped() },
             for: .touchUpInside)
@@ -158,6 +163,7 @@ private extension AddIdentityViewController {
         whatIsMastodonLabel.text = NSLocalizedString("add-identity.what-is-mastodon", comment: "")
 
         getStartedButton.setTitle(NSLocalizedString("add-identity.get-started", comment: ""), for: .normal)
+        getStartedButton.accessibilityIdentifier = "add-identity.get-started"
         getStartedButton.addAction(
             UIAction { [weak self] _ in
                 self?.urlTextField.resignFirstResponder()

@@ -72,6 +72,8 @@ final class NewStatusViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             systemItem: .cancel,
             primaryAction: UIAction { [weak self] _ in self?.dismiss() })
+        navigationItem.leftBarButtonItem?.accessibilityIdentifier = "new-status.cancel"
+        postButton.accessibilityIdentifier = "new-status.post"
         navigationItem.rightBarButtonItem = postButton
 
         let postActionTitle = self.postActionTitle(

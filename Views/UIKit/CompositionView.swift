@@ -93,6 +93,7 @@ private extension CompositionView {
         spoilerTextField.adjustsFontForContentSizeCategory = true
         spoilerTextField.font = .preferredFont(forTextStyle: .body)
         spoilerTextField.placeholder = NSLocalizedString("status.spoiler-text-placeholder", comment: "")
+        spoilerTextField.accessibilityIdentifier = "composition.spoiler-text"
         spoilerTextField.inputAccessoryView = spoilerTextinputAccessoryView
         spoilerTextField.tag = spoilerTextinputAccessoryView.tagForInputView
         spoilerTextField.isHidden_stackViewSafe = !viewModel.displayContentWarning
@@ -107,6 +108,7 @@ private extension CompositionView {
             autocompleteQueryPublisher: viewModel.$autocompleteQuery.eraseToAnyPublisher())
 
         stackView.addArrangedSubview(textView)
+        textView.accessibilityIdentifier = "composition.text"
         textView.keyboardType = .twitter
         textView.isScrollEnabled = false
         textView.adjustsFontForContentSizeCategory = true

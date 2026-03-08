@@ -152,6 +152,7 @@ private extension MainNavigationViewController {
                 self.rootViewModel.newStatusViewModel(identityContext: self.viewModel.identityContext)
         })
 
+        newStatusButtonView.button.accessibilityIdentifier = "main.new-status"
         view.addSubview(newStatusButtonView)
         newStatusButtonView.translatesAutoresizingMaskIntoConstraints = false
 

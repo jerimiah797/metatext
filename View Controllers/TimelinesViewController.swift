@@ -28,6 +28,8 @@ final class TimelinesViewController: UIPageViewController {
 
         self.timelineViewControllers = timelineViewControllers
 
+        segmentedControl.accessibilityIdentifier = "timelines.segment-control"
+
         super.init(transitionStyle: .scroll,
                    navigationOrientation: .horizontal,
                    options: [.interPageSpacing: CGFloat.defaultSpacing])
@@ -40,6 +42,7 @@ final class TimelinesViewController: UIPageViewController {
             title: NSLocalizedString("main-navigation.timelines", comment: ""),
             image: UIImage(systemName: "newspaper"),
             selectedImage: nil)
+        tabBarItem.accessibilityIdentifier = "tab.timelines"
 
         let announcementsAction = UIAction(
             title: NSLocalizedString("main-navigation.announcements", comment: ""),
@@ -52,6 +55,7 @@ final class TimelinesViewController: UIPageViewController {
             self.navigationController?.pushViewController(announcementsViewController, animated: true)
         }
 
+        announcementsButton.accessibilityIdentifier = "timelines.announcements"
         announcementsButton.primaryAction = announcementsAction
 
         viewModel.$announcementCount

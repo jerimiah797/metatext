@@ -30,6 +30,8 @@ final class NotificationsViewController: UIPageViewController {
                                 rootViewModel: rootViewModel)
         ]
 
+        segmentedControl.accessibilityIdentifier = "notifications.segment-control"
+
         super.init(transitionStyle: .scroll,
                    navigationOrientation: .horizontal,
                    options: [.interPageSpacing: CGFloat.defaultSpacing])
