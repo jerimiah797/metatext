@@ -132,6 +132,8 @@ class TableViewController: UITableViewController {
                             forRowAt indexPath: IndexPath) {
         guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
 
+        cell.accessibilityElementsHidden = false
+
         var heightCache = cellHeightCaches[tableView.frame.width] ?? [CollectionItem: CGFloat]()
 
         heightCache[item] = cell.frame.height
@@ -153,6 +155,8 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView,
                             didEndDisplaying cell: UITableViewCell,
                             forRowAt indexPath: IndexPath) {
+        cell.accessibilityElementsHidden = true
+
         if let loadMoreView = cell.contentView as? LoadMoreView {
             visibleLoadMoreViews.remove(loadMoreView)
         }
