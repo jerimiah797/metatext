@@ -503,6 +503,7 @@ private extension StatusView {
         hasReplyFollowingView.isHidden = !viewModel.configuration.hasReplyFollowing
 
         if viewModel.isReblog {
+            infoLabel.textColor = .secondaryLabel
             let attributedTitle = NSMutableAttributedString(
                 attributedString: "status.reblogged-by-%@".localizedBolding(
                     displayName: viewModel.rebloggedByDisplayName,
@@ -524,6 +525,7 @@ private extension StatusView {
             infoIcon.isHidden = false
             rebloggerButton.isHidden = false
         } else if viewModel.configuration.isPinned {
+            infoLabel.textColor = .secondaryLabel
             let pinnedText: String
 
             switch viewModel.identityContext.appPreferences.statusWord {
