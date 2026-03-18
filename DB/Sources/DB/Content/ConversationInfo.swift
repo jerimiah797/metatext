@@ -12,7 +12,7 @@ struct ConversationInfo: Codable, Hashable, FetchableRecord {
 extension ConversationInfo {
     static func addingIncludes<T: DerivableRequest>(_ request: T) -> T where T.RowDecoder == ConversationRecord {
         request.including(all: AccountInfo.addingIncludes(ConversationRecord.accounts).forKey(CodingKeys.accountInfos))
-            .including(required: StatusInfo.addingIncludes(ConversationRecord.lastStatus)
+            .including(required: StatusInfo.addingIncludesWithoutRelationships(ConversationRecord.lastStatus)
                         .forKey(CodingKeys.lastStatusInfo))
     }
 

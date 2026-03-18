@@ -32,6 +32,14 @@ extension StatusInfo {
                 .including(optional: AccountInfo.addingIncludes(StatusRecord.account).forKey(CodingKeys.accountInfo)))
     }
 
+    // Hack variant without relationships, for notification ValueObservation
+    static func addingIncludesForNotificationInfoWithoutRelationships<T: DerivableRequest>(
+        _ request: T) -> T where T.RowDecoder == StatusRecord {
+        addingOptionalIncludesWithoutRelationships(
+            request
+                .including(optional: AccountInfo.addingIncludes(StatusRecord.account).forKey(CodingKeys.accountInfo)))
+    }
+
     // Variant that excludes relationship joins, for use in ValueObservation-tracked queries.
     // Including relationships causes the observation to track the relationship table,
     // creating a feedback loop: timeline fetch → relationship fetch → DB write → observation fires → repeat.

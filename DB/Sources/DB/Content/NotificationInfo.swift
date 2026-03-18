@@ -13,8 +13,8 @@ extension NotificationInfo {
     static func addingIncludes<T: DerivableRequest>(_ request: T) -> T where T.RowDecoder == NotificationRecord {
         request.including(required: AccountInfo.addingIncludes(NotificationRecord.account)
                             .forKey(CodingKeys.accountInfo))
-            .including(optional: StatusInfo.addingIncludesForNotificationInfo(NotificationRecord.status)
-                        .forKey(CodingKeys.statusInfo))
+            .including(optional: StatusInfo.addingIncludesForNotificationInfoWithoutRelationships(
+                NotificationRecord.status).forKey(CodingKeys.statusInfo))
     }
 
     static func request(_ request: QueryInterfaceRequest<NotificationRecord>) -> QueryInterfaceRequest<Self> {

@@ -12,9 +12,11 @@ struct ContextItemsInfo: Codable, Hashable, FetchableRecord {
 
 extension ContextItemsInfo {
     static func addingIncludes<T: DerivableRequest>(_ request: T) -> T where T.RowDecoder == StatusRecord {
-        StatusInfo.addingIncludes(request)
-            .including(all: StatusInfo.addingIncludes(StatusRecord.ancestors).forKey(CodingKeys.ancestors))
-            .including(all: StatusInfo.addingIncludes(StatusRecord.descendants).forKey(CodingKeys.descendants))
+        StatusInfo.addingIncludesWithoutRelationships(request)
+            .including(all: StatusInfo.addingIncludesWithoutRelationships(StatusRecord.ancestors)
+                        .forKey(CodingKeys.ancestors))
+            .including(all: StatusInfo.addingIncludesWithoutRelationships(StatusRecord.descendants)
+                        .forKey(CodingKeys.descendants))
     }
 
     static func request(_ request: QueryInterfaceRequest<StatusRecord>) -> QueryInterfaceRequest<Self> {

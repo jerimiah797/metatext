@@ -22,6 +22,8 @@ public class CollectionItemsViewModel: ObservableObject {
     private var lastSelectedLoadMore: LoadMore?
     private var localLastReadId: CollectionItem.Id?
     private var markerLastReadId: CollectionItem.Id?
+    private var fetchedRelationshipAccountIds = Set<Account.Id>()
+    private var lastRequestedMaxId: String?
     private var cancellables = Set<AnyCancellable>()
     private var requestCancellables = Set<AnyCancellable>()
 
@@ -46,6 +48,12 @@ public class CollectionItemsViewModel: ObservableObject {
             .store(in: &cancellables)
 
         collectionService.accountIdsForRelationships
+            .map { [weak self] ids -> Set<Account.Id> in
+                guard let self = self else { return [] }
+                let newIds = ids.subtracting(self.fetchedRelationshipAccountIds)
+                self.fetchedRelationshipAccountIds.formUnion(ids)
+                return newIds
+            }
             .filter { !$0.isEmpty }
             .flatMap(identityContext.service.requestRelationships(ids:))
             .catch { _ in Empty().setFailureType(to: Never.self) }
@@ -93,6 +101,9 @@ public class CollectionItemsViewModel: ObservableObject {
                 ? lastUpdate.sections[indexPath.section].items[indexPath.item].itemId
                 : nextPageMaxId
         else { return }
+
+        guard maxId != lastRequestedMaxId else { return }
+        lastRequestedMaxId = maxId
 
         request(maxId: maxId, minId: nil, search: nil)
     }
