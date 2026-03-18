@@ -32,6 +32,16 @@ extension StatusInfo {
                 .including(optional: AccountInfo.addingIncludes(StatusRecord.account).forKey(CodingKeys.accountInfo)))
     }
 
+    // Variant that excludes relationship joins, for use in ValueObservation-tracked queries.
+    // Including relationships causes the observation to track the relationship table,
+    // creating a feedback loop: timeline fetch → relationship fetch → DB write → observation fires → repeat.
+    static func addingIncludesWithoutRelationships<T: DerivableRequest>(
+        _ request: T) -> T where T.RowDecoder == StatusRecord {
+        addingOptionalIncludesWithoutRelationships(
+            request
+                .including(required: AccountInfo.addingIncludes(StatusRecord.account).forKey(CodingKeys.accountInfo)))
+    }
+
     static func request(_ request: QueryInterfaceRequest<StatusRecord>) -> QueryInterfaceRequest<Self> {
         addingIncludes(request).asRequest(of: self)
     }
@@ -56,6 +66,18 @@ private extension StatusInfo {
             .including(optional: StatusRecord.relationship.forKey(CodingKeys.relationship))
             .including(optional: StatusRecord.reblog.forKey(CodingKeys.reblogRecord))
             .including(optional: StatusRecord.reblogRelationship.forKey(CodingKeys.reblogRelationship))
+            .including(optional: StatusRecord.showContentToggle.forKey(CodingKeys.showContentToggle))
+            .including(optional: StatusRecord.reblogShowContentToggle.forKey(CodingKeys.reblogShowContentToggle))
+            .including(optional: StatusRecord.showAttachmentsToggle.forKey(CodingKeys.showAttachmentsToggle))
+            .including(optional: StatusRecord.reblogShowAttachmentsToggle
+                        .forKey(CodingKeys.reblogShowAttachmentsToggle))
+    }
+
+    static func addingOptionalIncludesWithoutRelationships<T: DerivableRequest>(
+        _ request: T) -> T where T.RowDecoder == StatusRecord {
+        request.including(optional: AccountInfo.addingIncludes(StatusRecord.reblogAccount)
+                            .forKey(CodingKeys.reblogAccountInfo))
+            .including(optional: StatusRecord.reblog.forKey(CodingKeys.reblogRecord))
             .including(optional: StatusRecord.showContentToggle.forKey(CodingKeys.showContentToggle))
             .including(optional: StatusRecord.reblogShowContentToggle.forKey(CodingKeys.reblogShowContentToggle))
             .including(optional: StatusRecord.showAttachmentsToggle.forKey(CodingKeys.showAttachmentsToggle))

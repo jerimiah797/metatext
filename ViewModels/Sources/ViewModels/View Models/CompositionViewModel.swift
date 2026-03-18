@@ -3,9 +3,11 @@
 import Combine
 import Foundation
 import Mastodon
-import os.log
+import os
 import ServiceLayer
 import UniformTypeIdentifiers
+
+private let logger = Logger(subsystem: "org.arctian.metatext", category: "CompositionViewModel")
 
 public final class CompositionViewModel: AttachmentsRenderingViewModel, ObservableObject, Identifiable {
     public let id = Id()
@@ -139,8 +141,7 @@ public extension CompositionViewModel {
 
         let hasSource = sourceText != nil
         let hasRedraftText = redraft.text != nil
-        os_log("[Redraft] Populated editor — sourceText: %{public}@, redraft.text: %{public}@",
-               hasSource ? "yes" : "no", hasRedraftText ? "yes" : "no")
+        logger.info("[Redraft] Populated editor — sourceText: \(hasSource ? "yes" : "no", privacy: .public), redraft.text: \(hasRedraftText ? "yes" : "no", privacy: .public)")
 
         if let sourceText = sourceText {
             text = sourceText

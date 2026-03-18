@@ -3,8 +3,10 @@
 import Combine
 import Foundation
 import Mastodon
-import os.log
+import os
 import ServiceLayer
+
+private let logger = Logger(subsystem: "org.arctian.metatext", category: "NewStatusViewModel")
 
 public final class NewStatusViewModel: ObservableObject {
     @Published public var visibility: Status.Visibility
@@ -121,13 +123,12 @@ public final class NewStatusViewModel: ObservableObject {
             setIdentity(identity)
         }
 
-        os_log("[Redraft] Compose opened with pendingDeleteId: %{public}@",
-               pendingDeleteId?.description ?? "nil")
+        logger.info("[Redraft] Compose opened with pendingDeleteId: \(pendingDeleteId?.description ?? "nil", privacy: .public)")
     }
 
     deinit {
         if let pendingDeleteId = pendingDeleteId, postingState != .done {
-            os_log("[Redraft] Compose cancelled, original status %{public}@ preserved", pendingDeleteId)
+            logger.info("[Redraft] Compose cancelled, original status \(pendingDeleteId, privacy: .public) preserved")
         }
     }
 }
@@ -301,15 +302,15 @@ private extension NewStatusViewModel {
               let identityService = identityServiceForDelete
         else { return }
 
-        os_log("[Redraft] Post succeeded, deleting original status %{public}@", pendingDeleteId)
+        logger.info("[Redraft] Post succeeded, deleting original status \(pendingDeleteId, privacy: .public)")
 
         identityService.deleteStatus(id: pendingDeleteId)
             .sink { completion in
                 switch completion {
                 case .finished:
-                    os_log("[Redraft] Deferred delete completed")
+                    logger.info("[Redraft] Deferred delete completed")
                 case let .failure(error):
-                    os_log("[Redraft] Deferred delete failed: %{public}@", String(describing: error))
+                    logger.error("[Redraft] Deferred delete failed: \(String(describing: error), privacy: .public)")
                 }
             } receiveValue: { _ in }
             .store(in: &cancellables)

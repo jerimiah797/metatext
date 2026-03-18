@@ -3,8 +3,10 @@
 import Combine
 import Foundation
 import Mastodon
-import os.log
+import os
 import ServiceLayer
+
+private let logger = Logger(subsystem: "org.arctian.metatext", category: "StatusViewModel")
 
 public final class StatusViewModel: AttachmentsRenderingViewModel, ObservableObject {
     public let accountViewModel: AccountViewModel
@@ -338,7 +340,7 @@ public extension StatusViewModel {
         let isContextParent = configuration.isContextParent
         let statusId = statusService.status.displayStatus.id
 
-        os_log("[Redraft] Attempting non-destructive source fetch for status %{public}@", statusId)
+        logger.info("[Redraft] Attempting non-destructive source fetch for status \(statusId, privacy: .public)")
 
         eventsSubject.send(
             statusService.fetchForRedraft()
@@ -363,8 +365,7 @@ public extension StatusViewModel {
                                     redraftSourceSpoilerText: result.source.spoilerText)
                 }
                 .catch { [statusService] error -> AnyPublisher<CollectionItemEvent, Error> in
-                    os_log("[Redraft] Source fetch failed (%{public}@), falling back to destructive delete",
-                           String(describing: error))
+                    logger.error("[Redraft] Source fetch failed (\(String(describing: error), privacy: .public)), falling back to destructive delete")
 
                     return statusService.deleteAndRedraft()
                         .map { redraft, inReplyToStatusService in

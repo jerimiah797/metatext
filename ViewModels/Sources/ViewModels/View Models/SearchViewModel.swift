@@ -3,7 +3,7 @@
 import Combine
 import Foundation
 import ServiceLayer
-import os.log
+import os
 
 public final class SearchViewModel: CollectionItemsViewModel {
     @Published public var query = ""
@@ -13,7 +13,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
     private let searchService: SearchService
     private var cancellables = Set<AnyCancellable>()
     private var lastSearchWasFederated = false
-    private static let log = OSLog(subsystem: "org.arctian.metatext", category: "SearchViewModel")
+    private static let logger = Logger(subsystem: "org.arctian.metatext", category: "SearchViewModel")
 
     public init(identityContext: IdentityContext) {
         self.searchService = identityContext.service.searchService()
@@ -30,7 +30,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
         let localSearch = queryChanges
             .debounce(for: .seconds(Self.localDebounceInterval), scheduler: DispatchQueue.global())
             .handleEvents(receiveOutput: { [weak self] queryScope in
-                os_log("🔍 Local search triggering for: %{public}@ (scope: %{public}@)", log: SearchViewModel.log, type: .info, queryScope.0, String(describing: queryScope.1))
+                Self.logger.info("Local search triggering for: \(queryScope.0, privacy: .public) (scope: \(String(describing: queryScope.1), privacy: .public))")
                 self?.cancelRequests()
             })
             .map { (query: $0.0, scope: $0.1, resolve: false) }
@@ -39,7 +39,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
         let federatedSearch = queryChanges
             .debounce(for: .seconds(Self.federatedDebounceInterval), scheduler: DispatchQueue.global())
             .handleEvents(receiveOutput: { queryScope in
-                os_log("🌐 Federated search triggering for: %{public}@ (scope: %{public}@)", log: SearchViewModel.log, type: .info, queryScope.0, String(describing: queryScope.1))
+                Self.logger.info("Federated search triggering for: \(queryScope.0, privacy: .public) (scope: \(String(describing: queryScope.1), privacy: .public))")
                 // Note: Don't cancel here - let local search complete while federated runs
             })
             .map { (query: $0.0, scope: $0.1, resolve: true) }
@@ -66,8 +66,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
 
                 let searchType = params.resolve ? "FEDERATED" : "LOCAL"
                 let typeStr = params.scope.type?.rawValue ?? "all"
-                os_log("📡 Requesting %{public}@ search: query=%{public}@, resolve=%{public}@, type=%{public}@",
-                       log: SearchViewModel.log, type: .info, searchType, params.query, String(params.resolve), typeStr)
+                Self.logger.info("Requesting \(searchType, privacy: .public) search: query=\(params.query, privacy: .public), resolve=\(params.resolve), type=\(typeStr, privacy: .public)")
 
                 self.request(maxId: nil, minId: nil, search: search)
             }
@@ -78,7 +77,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
             .sink { [weak self] isLoading in
                 guard let self = self else { return }
                 if !isLoading && self.lastSearchWasFederated {
-                    os_log("✅ Federated search completed, clearing progress indicator", log: SearchViewModel.log, type: .info)
+                    Self.logger.info("Federated search completed, clearing progress indicator")
                     self.isFederatedSearchInProgress = false
                 }
             }
@@ -88,8 +87,7 @@ public final class SearchViewModel: CollectionItemsViewModel {
     public override func requestNextPage(fromIndexPath indexPath: IndexPath) {
         guard scope != .all else { return }
 
-        os_log("📄 Pagination request: query=%{public}@, offset=%d, resolve=false (local only)",
-               log: SearchViewModel.log, type: .info, query, indexPath.item + 1)
+        Self.logger.info("Pagination request: query=\(self.query, privacy: .public), offset=\(indexPath.item + 1), resolve=false (local only)")
 
         request(
             maxId: nil,

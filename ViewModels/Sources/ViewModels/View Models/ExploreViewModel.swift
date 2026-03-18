@@ -4,7 +4,9 @@ import Combine
 import Foundation
 import Mastodon
 import ServiceLayer
-import os.log
+import os
+
+private let exploreLogger = Logger(subsystem: "org.arctian.metatext", category: "ExploreViewModel")
 
 public final class ExploreViewModel: ObservableObject {
     public let searchViewModel: SearchViewModel
@@ -27,21 +29,21 @@ public final class ExploreViewModel: ObservableObject {
 
         identityContext.$identity
             .handleEvents(receiveOutput: { identity in
-                print("[EXPLORE-TRACE] ExploreViewModel: identity changed (instance: \(identity.instance?.uri ?? "nil"))")
+                exploreLogger.debug("identity changed (instance: \(identity.instance?.uri ?? "nil", privacy: .public))")
             })
             .compactMap { $0.instance?.uri }
             .removeDuplicates()
             .handleEvents(receiveOutput: { uri in
-                print("[EXPLORE-TRACE] ExploreViewModel: URI emitted: \(uri)")
+                exploreLogger.debug("URI emitted: \(uri, privacy: .public)")
             })
             .flatMap { service.instanceServicePublisher(uri: $0) }
             .handleEvents(receiveOutput: { instanceService in
-                print("[EXPLORE-TRACE] ExploreViewModel: instanceService emitted (version: \(instanceService.instance.version))")
+                exploreLogger.debug("instanceService emitted (version: \(instanceService.instance.version, privacy: .public))")
             })
             .map { InstanceViewModel(instanceService: $0) }
             .handleEvents(receiveOutput: { viewModel in
                 let version = (viewModel as? InstanceViewModel)?.instance.version ?? "unknown"
-                print("[EXPLORE-TRACE] ExploreViewModel: instanceViewModel created (version: \(version))")
+                exploreLogger.debug("instanceViewModel created (version: \(version, privacy: .public))")
             })
             .receive(on: DispatchQueue.main)
             .assignErrorsToAlertItem(to: \.alertItem, on: self)
@@ -67,7 +69,7 @@ public extension ExploreViewModel {
 
     func refresh() {
         let version = identityContext.identity.instance?.version
-        print("[EXPLORE-TRACE] ExploreViewModel.refresh() - version: \(version ?? "nil"), isGoToSocial: \(isGoToSocial(version: version))")
+        exploreLogger.debug("refresh() - version: \(version ?? "nil", privacy: .public), isGoToSocial: \(self.isGoToSocial(version: version))")
 
         // GoToSocial doesn't support /api/v1/trends, so skip the call
         if isGoToSocial(version: version) {

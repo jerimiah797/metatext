@@ -4,7 +4,9 @@ import Combine
 import Mastodon
 import UIKit
 import ViewModels
-import os.log
+import os
+
+private let exploreDataSourceLogger = Logger(subsystem: "org.arctian.metatext", category: "ExploreDataSource")
 
 final class ExploreDataSource: UICollectionViewDiffableDataSource<ExploreViewModel.Section, ExploreViewModel.Item> {
     private let updateQueue =
@@ -67,7 +69,7 @@ final class ExploreDataSource: UICollectionViewDiffableDataSource<ExploreViewMod
 
         viewModel.$trends.combineLatest(viewModel.$instanceViewModel)
             .sink { [weak self] trends, instanceViewModel in
-                print("[EXPLORE-TRACE] ExploreDataSource: combineLatest fired (trends: \(trends.count), instance: \(instanceViewModel?.instance.version ?? "nil"))")
+                exploreDataSourceLogger.debug("combineLatest fired (trends: \(trends.count), instance: \(instanceViewModel?.instance.version ?? "nil", privacy: .public))")
                 self?.update(tags: trends, instanceViewModel: instanceViewModel)
             }
             .store(in: &cancellables)
@@ -85,7 +87,7 @@ final class ExploreDataSource: UICollectionViewDiffableDataSource<ExploreViewMod
 private extension ExploreDataSource {
     func update(tags: [Tag], instanceViewModel: InstanceViewModel?) {
         let isScrolling = collectionView?.isDragging == true || collectionView?.isDecelerating == true
-        print("[EXPLORE-TRACE] ExploreDataSource.update() called (tags: \(tags.count), instance: \(instanceViewModel?.instance.version ?? "nil"), scrolling: \(isScrolling))")
+        exploreDataSourceLogger.debug("update() called (tags: \(tags.count), instance: \(instanceViewModel?.instance.version ?? "nil", privacy: .public), scrolling: \(isScrolling))")
 
         var newsnapshot = NSDiffableDataSourceSnapshot<ExploreViewModel.Section, ExploreViewModel.Item>()
 
@@ -106,7 +108,7 @@ private extension ExploreDataSource {
         let wasEmpty = self.snapshot().itemIdentifiers.isEmpty
         let contentOffset = collectionView?.contentOffset
 
-        print("[EXPLORE-TRACE] ExploreDataSource: Applying snapshot (items: \(newsnapshot.itemIdentifiers.count), wasEmpty: \(wasEmpty), scrolling: \(isScrolling))")
+        exploreDataSourceLogger.debug("Applying snapshot (items: \(newsnapshot.itemIdentifiers.count), wasEmpty: \(wasEmpty), scrolling: \(isScrolling))")
 
         apply(newsnapshot, animatingDifferences: false) {
             if let contentOffset = contentOffset, !wasEmpty {

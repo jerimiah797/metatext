@@ -21,7 +21,8 @@ extension TimelineItemsInfo {
                                                      ordered: Bool) -> T where T.RowDecoder == TimelineRecord {
         let statusesAssociation = ordered ? TimelineRecord.orderedStatuses : TimelineRecord.statuses
 
-        return request.including(all: StatusInfo.addingIncludes(statusesAssociation).forKey(CodingKeys.statusInfos))
+        return request.including(all: StatusInfo.addingIncludesWithoutRelationships(statusesAssociation)
+                                        .forKey(CodingKeys.statusInfos))
             .including(all: TimelineRecord.loadMores.forKey(CodingKeys.loadMoreRecords))
             .including(optional: PinnedStatusesInfo.addingIncludes(TimelineRecord.account)
                         .forKey(CodingKeys.pinnedStatusesInfo))
@@ -108,7 +109,7 @@ extension TimelineItemsInfo {
 
 extension TimelineItemsInfo.PinnedStatusesInfo {
     static func addingIncludes<T: DerivableRequest>(_ request: T) -> T where T.RowDecoder == AccountRecord {
-        request.including(all: StatusInfo.addingIncludes(AccountRecord.pinnedStatuses)
+        request.including(all: StatusInfo.addingIncludesWithoutRelationships(AccountRecord.pinnedStatuses)
                             .forKey(CodingKeys.pinnedStatusInfos))
     }
 }

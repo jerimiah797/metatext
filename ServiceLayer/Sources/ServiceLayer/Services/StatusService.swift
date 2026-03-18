@@ -5,7 +5,9 @@ import DB
 import Foundation
 import Mastodon
 import MastodonAPI
-import os.log
+import os
+
+private let logger = Logger(subsystem: "org.arctian.metatext", category: "StatusService")
 
 public struct RedraftSourceResult {
     public let status: Status
@@ -142,7 +144,7 @@ public extension StatusService {
         let capturedStatus = status
         return mastodonAPIClient.request(StatusSourceEndpoint.source(id: status.displayStatus.id))
             .map { source in
-                os_log("[Redraft] Source fetch succeeded, text length: %d", source.text.count)
+                logger.info("[Redraft] Source fetch succeeded, text length: \(source.text.count)")
                 return source
             }
             .zip(inReplyToPublisher.setFailureType(to: Error.self))
