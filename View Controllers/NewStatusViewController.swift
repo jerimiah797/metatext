@@ -18,6 +18,12 @@ final class NewStatusViewController: UIViewController {
     private let mediaSelections = PassthroughSubject<[PHPickerResult], Never>()
     private let imagePickerResults = PassthroughSubject<[UIImagePickerController.InfoKey: Any]?, Never>()
     private let documentPickerResults = PassthroughSubject<[URL]?, Never>()
+    private let autocompleteQuerySubject = CurrentValueSubject<AnyPublisher<String?, Never>, Never>(
+        Just(nil).eraseToAnyPublisher())
+    private var composeToolbarView: ComposeToolbarView?
+    private var composeAutocompleteView: ComposeAutocompleteView?
+    private var toolbarBottomConstraint: NSLayoutConstraint?
+    private weak var activeCompositionView: CompositionView?
     private var cancellables = Set<AnyCancellable>()
 
     init(viewModel: NewStatusViewModel, rootViewModel: RootViewModel?) {
@@ -43,6 +49,19 @@ final class NewStatusViewController: UIViewController {
 
         view.backgroundColor = .systemBackground
 
+        // Create toolbar and autocomplete views
+        guard let initialComposition = viewModel.compositionViewModels.first else { return }
+
+        let toolbarView = ComposeToolbarView(viewModel: initialComposition, parentViewModel: viewModel)
+        composeToolbarView = toolbarView
+        view.addSubview(toolbarView)
+
+        let autocompleteView = ComposeAutocompleteView(
+            queryPublisher: autocompleteQuerySubject.switchToLatest().eraseToAnyPublisher(),
+            parentViewModel: viewModel)
+        composeAutocompleteView = autocompleteView
+        view.addSubview(autocompleteView)
+
         view.addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -55,11 +74,21 @@ final class NewStatusViewController: UIViewController {
         activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
         activityIndicatorView.hidesWhenStopped = true
 
+        let bottomConstraint = toolbarView.bottomAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        toolbarBottomConstraint = bottomConstraint
+
         NSLayoutConstraint.activate([
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: autocompleteView.topAnchor),
+            autocompleteView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            autocompleteView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            autocompleteView.bottomAnchor.constraint(equalTo: toolbarView.topAnchor),
+            toolbarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolbarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomConstraint,
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
@@ -68,6 +97,9 @@ final class NewStatusViewController: UIViewController {
             activityIndicatorView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
             activityIndicatorView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor)
         ])
+
+        // Set initial active input tag for emoji picker (must match textView.tag formula in CompositionView)
+        toolbarView.activeInputTag = initialComposition.id.hashValue &* 3 &+ 2
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             systemItem: .cancel,
@@ -95,6 +127,14 @@ final class NewStatusViewController: UIViewController {
             stackView.addArrangedSubview(statusView)
         }
         #endif
+
+        // Track focus changes to update toolbar target and autocomplete query
+        setupFocusTracking()
+
+        // Wire autocomplete selections to active text input
+        autocompleteView.autocompleteSelections
+            .sink { [weak self] in self?.handleAutocompleteSelection($0) }
+            .store(in: &cancellables)
 
         setupViewModelBindings()
     }
@@ -471,16 +511,113 @@ private extension NewStatusViewController {
         else { return }
 
         let convertedFrame = self.view.convert(keyboardFrameEnd, from: view.window)
-        let contentInsetBottom: CGFloat
 
         if notification.name == UIResponder.keyboardWillHideNotification {
-            contentInsetBottom = 0
+            toolbarBottomConstraint?.constant = 0
         } else {
-            contentInsetBottom = convertedFrame.height - view.safeAreaInsets.bottom
+            // Move toolbar up by keyboard height (relative to safe area bottom)
+            toolbarBottomConstraint?.constant = -(convertedFrame.height - view.safeAreaInsets.bottom)
         }
 
-        self.scrollView.contentInset.bottom = contentInsetBottom
-        self.scrollView.verticalScrollIndicatorInsets.bottom = contentInsetBottom
+        let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
+        let curveRaw = notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt
+            ?? UIView.AnimationOptions.curveEaseInOut.rawValue
+
+        UIView.animate(
+            withDuration: duration,
+            delay: 0,
+            options: UIView.AnimationOptions(rawValue: curveRaw)) {
+            self.view.layoutIfNeeded()
+        }
+    }
+
+    func setupFocusTracking() {
+        // Track when any text view becomes first responder
+        NotificationCenter.default.publisher(for: UITextView.textDidBeginEditingNotification)
+            .compactMap { [weak self] notification -> (CompositionView, CompositionViewModel)? in
+                guard let textView = notification.object as? UITextView,
+                      let self = self
+                else { return nil }
+
+                return self.findCompositionView(containing: textView)
+            }
+            .sink { [weak self] compositionView, compositionViewModel in
+                self?.composeToolbarView?.setActiveComposition(compositionViewModel)
+                self?.composeToolbarView?.activeInputTag = compositionView.textView.tag
+                self?.autocompleteQuerySubject.send(
+                    compositionViewModel.$autocompleteQuery.eraseToAnyPublisher())
+                self?.activeCompositionView = compositionView
+            }
+            .store(in: &cancellables)
+
+        // Track when any text field becomes first responder (spoiler, poll options)
+        NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
+            .compactMap { [weak self] notification -> (CompositionView, CompositionViewModel, UITextField)? in
+                guard let textField = notification.object as? UITextField,
+                      let self = self
+                else { return nil }
+
+                // Check if this is a spoiler text field
+                if let result = self.findCompositionView(containing: textField) {
+                    if textField === result.0.spoilerTextField {
+                        return (result.0, result.1, textField)
+                    }
+                }
+
+                // Check poll option fields
+                if let result = self.findCompositionViewForPollOption(containing: textField) {
+                    return (result.compositionView, result.viewModel, textField)
+                }
+
+                return nil
+            }
+            .sink { [weak self] compositionView, compositionViewModel, textField in
+                self?.composeToolbarView?.setActiveComposition(compositionViewModel)
+                self?.composeToolbarView?.activeInputTag = textField.tag
+                if textField === compositionView.spoilerTextField {
+                    self?.autocompleteQuerySubject.send(
+                        compositionViewModel.$contentWarningAutocompleteQuery.eraseToAnyPublisher())
+                } else {
+                    // Poll option — clear autocomplete for simplicity
+                    self?.autocompleteQuerySubject.send(Just(nil).eraseToAnyPublisher())
+                }
+                self?.activeCompositionView = compositionView
+            }
+            .store(in: &cancellables)
+    }
+
+    func findCompositionView(containing view: UIView) -> (CompositionView, CompositionViewModel)? {
+        for compositionView in stackView.arrangedSubviews.compactMap({ $0 as? CompositionView }) {
+            if compositionView.textView === view || compositionView.spoilerTextField === view {
+                if let viewModel = viewModel.compositionViewModels.first(where: { $0.id == compositionView.id }) {
+                    return (compositionView, viewModel)
+                }
+            }
+        }
+        return nil
+    }
+
+    func findCompositionViewForPollOption(containing textField: UITextField)
+        -> (compositionView: CompositionView, viewModel: CompositionViewModel)? {
+        for compositionView in stackView.arrangedSubviews.compactMap({ $0 as? CompositionView }) {
+            // Check if the text field is within this composition view's poll
+            if textField.isDescendant(of: compositionView.pollView) {
+                if let viewModel = viewModel.compositionViewModels.first(where: { $0.id == compositionView.id }) {
+                    return (compositionView, viewModel)
+                }
+            }
+        }
+        return nil
+    }
+
+    func handleAutocompleteSelection(_ autocompleteText: String) {
+        guard let compositionView = activeCompositionView else { return }
+
+        if compositionView.spoilerTextField.isFirstResponder {
+            compositionView.spoilerTextAutocompleteSelected(autocompleteText)
+        } else if compositionView.textView.isFirstResponder {
+            compositionView.autocompleteSelected(autocompleteText)
+        }
     }
 
     func postActionTitle(statusWord: AppPreferences.StatusWord, visibility: Status.Visibility) -> String {

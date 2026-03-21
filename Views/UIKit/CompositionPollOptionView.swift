@@ -44,12 +44,7 @@ private extension CompositionPollOptionView {
         textField.borderStyle = .roundedRect
         textField.adjustsFontForContentSizeCategory = true
         textField.font = .preferredFont(forTextStyle: .body)
-        let textInputAccessoryView = CompositionInputAccessoryView(
-            viewModel: viewModel,
-            parentViewModel: parentViewModel,
-            autocompleteQueryPublisher: option.$autocompleteQuery.eraseToAnyPublisher())
-        textField.inputAccessoryView = textInputAccessoryView
-        textField.tag = textInputAccessoryView.tagForInputView
+        textField.tag = option.id.hashValue
         textField.addAction(
             UIAction { [weak self] _ in self?.textFieldEditingChanged() },
             for: .editingChanged)
@@ -87,10 +82,6 @@ private extension CompositionPollOptionView {
                 remainingCharactersLabel.text = String($0)
                 remainingCharactersLabel.textColor = $0 < 0 ? .systemRed : .label
             }
-            .store(in: &cancellables)
-
-        textInputAccessoryView.autocompleteSelections
-            .sink { [weak self] in self?.autocompleteSelected($0) }
             .store(in: &cancellables)
     }
 
