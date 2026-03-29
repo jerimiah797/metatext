@@ -9,14 +9,7 @@ struct ComposeTextEditor: UIViewRepresentable {
     var isInitialFirstResponder: Bool
 
     func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
-        textView.font = .preferredFont(forTextStyle: .body)
-        textView.adjustsFontForContentSizeCategory = true
-        textView.isScrollEnabled = false
-        textView.backgroundColor = .clear
-        textView.textContainerInset = .zero
-        textView.textContainer.lineFragmentPadding = 0
-        textView.delegate = context.coordinator
+        let textView = context.coordinator.textView
 
         if isInitialFirstResponder {
             DispatchQueue.main.async {
@@ -28,6 +21,8 @@ struct ComposeTextEditor: UIViewRepresentable {
     }
 
     func updateUIView(_ textView: UITextView, context: Context) {
+        guard !context.coordinator.isUpdatingText else { return }
+
         if textView.text != text {
             textView.text = text
         }
@@ -38,15 +33,31 @@ struct ComposeTextEditor: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
-        let parent: ComposeTextEditor
+        var parent: ComposeTextEditor
+        var isUpdatingText = false
+
+        let textView: UITextView = {
+            let tv = UITextView()
+            tv.font = .preferredFont(forTextStyle: .body)
+            tv.adjustsFontForContentSizeCategory = true
+            tv.isScrollEnabled = false
+            tv.backgroundColor = .clear
+            tv.textContainerInset = .zero
+            tv.textContainer.lineFragmentPadding = 0
+            return tv
+        }()
 
         init(_ parent: ComposeTextEditor) {
             self.parent = parent
+            super.init()
+            textView.delegate = self
         }
 
         func textViewDidChange(_ textView: UITextView) {
+            isUpdatingText = true
             parent.text = textView.text
             updateTextToSelectedRange(textView)
+            isUpdatingText = false
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {

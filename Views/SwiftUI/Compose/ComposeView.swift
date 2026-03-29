@@ -24,6 +24,7 @@ struct ComposeView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.never)
 
             if viewModel.postingState == .posting {
                 Color.black.opacity(0.2)
