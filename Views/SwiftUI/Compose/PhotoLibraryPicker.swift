@@ -72,6 +72,7 @@ struct PhotoLibraryPicker: View {
                 }
         }
         .task {
+            viewModel.selectionLimit = selectionLimit
             await viewModel.requestAccessIfNeeded()
             viewModel.fetchAssets(filter: filter)
             viewModel.fetchAlbums(filter: filter)
