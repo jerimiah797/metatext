@@ -1,44 +1,8 @@
 // Copyright © 2024 Metabolist. All rights reserved.
 
-import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
 import ViewModels
-
-struct PhotoPicker: UIViewControllerRepresentable {
-    let selectionLimit: Int
-    let filter: PHPickerFilter?
-    let onComplete: ([PHPickerResult]) -> Void
-
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var configuration = PHPickerConfiguration()
-        configuration.preferredAssetRepresentationMode = .current
-        configuration.selectionLimit = selectionLimit
-        configuration.filter = filter
-
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    final class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: PhotoPicker
-
-        init(_ parent: PhotoPicker) {
-            self.parent = parent
-        }
-
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            parent.onComplete(results)
-        }
-    }
-}
 
 struct DocumentPicker: UIViewControllerRepresentable {
     let onComplete: ([URL]) -> Void

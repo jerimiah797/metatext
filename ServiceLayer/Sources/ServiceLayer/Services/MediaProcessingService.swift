@@ -8,14 +8,34 @@ import UIKit
 #endif
 import UniformTypeIdentifiers
 
-enum MediaProcessingError: Error {
-    case invalidMimeType
+enum MediaProcessingError: Error, LocalizedError {
+    case invalidMimeType(String?)
     case fileURLNotFound
     case imageNotFound
     case unsupportedType
     case unableToCreateImageSource
     case unableToDownsample
     case unableToCreateImageDataDestination
+
+    var errorDescription: String? {
+        switch self {
+        case let .invalidMimeType(fileType):
+            if let fileType = fileType {
+                return String.localizedStringWithFormat(
+                    NSLocalizedString("error.media.unsupported-format-%@", comment: ""),
+                    fileType)
+            }
+            return NSLocalizedString("error.media.unsupported-format", comment: "")
+        case .fileURLNotFound:
+            return NSLocalizedString("error.media.file-not-found", comment: "")
+        case .imageNotFound:
+            return NSLocalizedString("error.media.image-not-found", comment: "")
+        case .unsupportedType:
+            return NSLocalizedString("error.media.unsupported-format", comment: "")
+        case .unableToCreateImageSource, .unableToDownsample, .unableToCreateImageDataDestination:
+            return NSLocalizedString("error.media.processing-failed", comment: "")
+        }
+    }
 }
 
 public enum MediaProcessingService {}
@@ -38,7 +58,9 @@ public extension MediaProcessingService {
             mimeType = pngMIMEType
             dataPublisher = UIImagePNGDataPublisher(itemProvider: itemProvider)
         } else {
-            return Fail(error: MediaProcessingError.invalidMimeType).eraseToAnyPublisher()
+            let fileType = registeredTypes.first?.localizedDescription
+                ?? registeredTypes.first?.identifier.components(separatedBy: ".").last?.uppercased()
+            return Fail(error: MediaProcessingError.invalidMimeType(fileType)).eraseToAnyPublisher()
         }
 
         return dataPublisher.map { (data: $0, mimeType: mimeType) }.eraseToAnyPublisher()
