@@ -132,6 +132,11 @@
 "compose-button.accessibility-label.toot" = "Compose Toot";
 "conversation.unread" = "Unread";
 "dismiss" = "Dismiss";
+"error.media.unsupported-format-%@" = "%@ file format is not supported.";
+"error.media.unsupported-format" = "This file format is not supported.";
+"error.media.file-not-found" = "File could not be loaded.";
+"error.media.image-not-found" = "Image could not be loaded.";
+"error.media.processing-failed" = "Failed to process media.";
 "emoji.custom" = "Custom";
 "emoji.default-skin-tone" = "Default skin tone";
 "emoji.default-skin-tone-button.accessibility-label" = "Select default skin tone";

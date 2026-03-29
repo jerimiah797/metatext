@@ -3,6 +3,7 @@
 import Photos
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 enum MediaFilter {
     case all
@@ -325,6 +326,13 @@ final class PhotoLibraryPickerViewModel: ObservableObject {
 }
 
 private extension PhotoLibraryPickerViewModel {
+    static let uploadableImageTypes: Set<String> = [
+        UTType.png.identifier,
+        UTType.jpeg.identifier,
+        UTType.gif.identifier,
+        UTType.webP.identifier
+    ]
+
     func buildImageProvider(asset: PHAsset, completion: @escaping (NSItemProvider?) -> Void) {
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
@@ -336,9 +344,27 @@ private extension PhotoLibraryPickerViewModel {
                 return
             }
 
+            // If the image is in an uploadable format (JPEG, PNG, GIF, WebP), use it directly.
+            // Otherwise (e.g. HEIC), convert to JPEG.
+            let finalData: Data
+            let finalUTI: String
+
+            if Self.uploadableImageTypes.contains(uti) {
+                finalData = data
+                finalUTI = uti
+            } else {
+                guard let image = UIImage(data: data),
+                      let jpegData = image.jpegData(compressionQuality: 0.9) else {
+                    completion(nil)
+                    return
+                }
+                finalData = jpegData
+                finalUTI = UTType.jpeg.identifier
+            }
+
             let provider = NSItemProvider()
-            provider.registerDataRepresentation(forTypeIdentifier: uti, visibility: .all) { handler in
-                handler(data, nil)
+            provider.registerDataRepresentation(forTypeIdentifier: finalUTI, visibility: .all) { handler in
+                handler(finalData, nil)
                 return Progress()
             }
             completion(provider)
