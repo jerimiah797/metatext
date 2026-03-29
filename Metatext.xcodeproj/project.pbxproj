@@ -10,6 +10,8 @@
 		AA0001012024032800000001 /* ComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000011 /* ComposeView.swift */; };
 		AA0001012024032800000002 /* ComposeCompositionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000012 /* ComposeCompositionView.swift */; };
 		AA0001012024032800000003 /* ComposeTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000013 /* ComposeTextEditor.swift */; };
+		AA0001012024032800000004 /* SwiftUIComposeToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000014 /* SwiftUIComposeToolbarView.swift */; };
+		AA0001012024032800000005 /* SwiftUIComposeAutocompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000015 /* SwiftUIComposeAutocompleteView.swift */; };
 		38F607D74D745D6CFA6ECD6C /* ComposeAutocompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC03A1B63F4717900C3DA94 /* ComposeAutocompleteView.swift */; };
 		75F7B3CC291F51D300FDE7C7 /* SwipeableNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F7B3CB291F51D300FDE7C7 /* SwipeableNavigationController.swift */; };
 		A8686F0660C3411F8CC586D6 /* EditFilterV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B5A44AB9FA95FA0C7EDA7B /* EditFilterV2View.swift */; };
@@ -299,6 +301,8 @@
 		AA0001012024032800000011 /* ComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeView.swift; sourceTree = "<group>"; };
 		AA0001012024032800000012 /* ComposeCompositionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeCompositionView.swift; sourceTree = "<group>"; };
 		AA0001012024032800000013 /* ComposeTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeTextEditor.swift; sourceTree = "<group>"; };
+		AA0001012024032800000014 /* SwiftUIComposeToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIComposeToolbarView.swift; sourceTree = "<group>"; };
+		AA0001012024032800000015 /* SwiftUIComposeAutocompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIComposeAutocompleteView.swift; sourceTree = "<group>"; };
 		2805F2DF26044E8900670835 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2805F2E026044E8900670835 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4FC03A1B63F4717900C3DA94 /* ComposeAutocompleteView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Views/UIKit/ComposeAutocompleteView.swift; sourceTree = SOURCE_ROOT; };
@@ -638,6 +642,8 @@
 				AA0001012024032800000011 /* ComposeView.swift */,
 				AA0001012024032800000012 /* ComposeCompositionView.swift */,
 				AA0001012024032800000013 /* ComposeTextEditor.swift */,
+				AA0001012024032800000014 /* SwiftUIComposeToolbarView.swift */,
+				AA0001012024032800000015 /* SwiftUIComposeAutocompleteView.swift */,
 			);
 			path = Compose;
 			sourceTree = "<group>";
@@ -1387,6 +1393,8 @@
 				AA0001012024032800000001 /* ComposeView.swift in Sources */,
 				AA0001012024032800000002 /* ComposeCompositionView.swift in Sources */,
 				AA0001012024032800000003 /* ComposeTextEditor.swift in Sources */,
+				AA0001012024032800000004 /* SwiftUIComposeToolbarView.swift in Sources */,
+				AA0001012024032800000005 /* SwiftUIComposeAutocompleteView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -18,13 +18,6 @@ struct ComposeCompositionView: View {
                 text: $viewModel.text,
                 textToSelectedRange: $viewModel.textToSelectedRange,
                 isInitialFirstResponder: isFirstComposition)
-
-            HStack {
-                Spacer()
-                Text("\(viewModel.remainingCharacters)")
-                    .foregroundColor(viewModel.remainingCharacters < 0 ? .red : .secondary)
-                    .font(.callout.monospacedDigit())
-            }
         }
         .padding()
     }
