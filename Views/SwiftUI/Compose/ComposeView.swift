@@ -40,7 +40,7 @@ struct ComposeView: View {
             VStack(spacing: 0) {
                 SwiftUIComposeAutocompleteView(
                     parentViewModel: viewModel,
-                    autocompleteQuery: activeComposition?.autocompleteQuery,
+                    compositionViewModel: activeComposition ?? viewModel.compositionViewModels[0],
                     onSelect: handleAutocompleteSelection)
 
                 SwiftUIComposeToolbarView(
