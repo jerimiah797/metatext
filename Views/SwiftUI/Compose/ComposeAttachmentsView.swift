@@ -25,7 +25,6 @@ struct ComposeAttachmentsView: View {
                     .disabled(viewModel.displayContentWarning)
             }
         }
-        .padding(.horizontal)
     }
 }
 

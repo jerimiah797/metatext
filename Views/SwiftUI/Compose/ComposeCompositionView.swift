@@ -23,12 +23,14 @@ struct ComposeCompositionView: View {
                         Text("compose.prompt")
                             .foregroundColor(.secondary)
                             .padding(.top, 1)
+                            .padding(.leading, 4)
                     }
 
                     ComposeTextEditor(
                         text: $viewModel.text,
                         textToSelectedRange: $viewModel.textToSelectedRange,
                         isInitialFirstResponder: isFirstComposition)
+                        .padding(.leading, 4)
                 }
 
                 if !viewModel.attachmentViewModels.isEmpty || !viewModel.attachmentUploadViewModels.isEmpty {
