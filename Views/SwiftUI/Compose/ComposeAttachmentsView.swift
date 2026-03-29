@@ -46,55 +46,65 @@ private extension ComposeAttachmentsView {
     }
 
     func attachmentCell(_ attachmentVM: AttachmentViewModel) -> some View {
-        ZStack(alignment: .topTrailing) {
-            if let previewUrl = attachmentVM.attachment.previewUrl?.url {
-                AsyncImage(url: previewUrl) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
+        GeometryReader { geometry in
+            ZStack {
+                if let previewUrl = attachmentVM.attachment.previewUrl?.url {
+                    AsyncImage(url: previewUrl) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                    } placeholder: {
+                        Color(.secondarySystemBackground)
+                    }
+                } else {
                     Color(.secondarySystemBackground)
+                        .overlay {
+                            Image(systemName: iconName(for: attachmentVM.attachment.type))
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                        }
                 }
-                .frame(height: 150)
-                .clipped()
-                .cornerRadius(.defaultCornerRadius)
-            } else {
-                RoundedRectangle(cornerRadius: .defaultCornerRadius)
-                    .fill(Color(.secondarySystemBackground))
-                    .frame(height: 150)
-                    .overlay {
-                        Image(systemName: iconName(for: attachmentVM.attachment.type))
-                            .font(.title)
-                            .foregroundColor(.secondary)
-                    }
-            }
 
-            Button(role: .destructive) {
-                viewModel.removeAttachment(viewModel: attachmentVM)
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.title2)
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white, .black.opacity(0.6))
-            }
-            .padding(4)
-
-            if attachmentVM.attachment.description?.isEmpty ?? true {
+                // Remove button — top trailing
                 VStack {
-                    Spacer()
                     HStack {
-                        Text("compose.attachment.uncaptioned")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(4)
                         Spacer()
+                        Button(role: .destructive) {
+                            viewModel.removeAttachment(viewModel: attachmentVM)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, .black.opacity(0.6))
+                        }
+                        .padding(6)
                     }
-                    .padding(4)
+                    Spacer()
+                }
+
+                // Uncaptioned badge — bottom leading
+                if attachmentVM.attachment.description?.isEmpty ?? true {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Text("compose.attachment.uncaptioned")
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(4)
+                            Spacer()
+                        }
+                        .padding(6)
+                    }
                 }
             }
+            .clipped()
         }
+        .frame(height: 150)
+        .clipShape(RoundedRectangle(cornerRadius: .defaultCornerRadius))
+        .contentShape(Rectangle())
         .onTapGesture {
             viewModel.attachmentSelected(viewModel: attachmentVM)
         }
