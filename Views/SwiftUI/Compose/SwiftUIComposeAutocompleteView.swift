@@ -28,19 +28,21 @@ struct SwiftUIComposeAutocompleteView: View {
     }
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
             if !searchResults.isEmpty {
                 searchResultsList
+                    .frame(maxHeight: 150)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: .defaultCornerRadius))
             } else if !emojiResults.isEmpty {
                 emojiResultsGrid
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: .defaultCornerRadius))
             }
         }
-        .frame(maxHeight: 150)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: .defaultCornerRadius))
         .onChange(of: autocompleteQuery) { routeQuery($0) }
-        .onReceive(searchViewModel.updates) { update in
-            searchResults = update.sections.flatMap(\.items).compactMap { item -> AutocompleteResult? in
+        .onReceive(searchViewModel.updates.receive(on: DispatchQueue.main)) { update in
+            let items: [AutocompleteResult] = update.sections.flatMap(\.items).compactMap { item in
                 switch item {
                 case let .account(account, _, _):
                     return .account(account)
@@ -50,8 +52,11 @@ struct SwiftUIComposeAutocompleteView: View {
                     return nil
                 }
             }
+            if !items.isEmpty || searchViewModel.query.isEmpty {
+                searchResults = items
+            }
         }
-        .onReceive(emojiPickerViewModel.$emoji) { sections in
+        .onReceive(emojiPickerViewModel.$emoji.receive(on: DispatchQueue.main)) { sections in
             emojiResults = sections.sorted { $0.key < $1.key }.flatMap(\.value)
         }
     }

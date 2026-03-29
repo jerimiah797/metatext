@@ -12,14 +12,26 @@ struct ComposeCompositionView: View {
             if viewModel.displayContentWarning {
                 TextField("status.content-warning-abbreviation", text: $viewModel.contentWarning)
                     .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal)
             }
 
             ComposeTextEditor(
                 text: $viewModel.text,
                 textToSelectedRange: $viewModel.textToSelectedRange,
                 isInitialFirstResponder: isFirstComposition)
+                .padding(.horizontal)
+
+            if !viewModel.attachmentViewModels.isEmpty || !viewModel.attachmentUploadViewModels.isEmpty {
+                ComposeAttachmentsView(
+                    viewModel: viewModel,
+                    parentViewModel: parentViewModel)
+            }
+
+            if viewModel.displayPoll {
+                ComposePollView(viewModel: viewModel)
+            }
         }
-        .padding()
+        .padding(.vertical)
     }
 }
 

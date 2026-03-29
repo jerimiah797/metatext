@@ -1,13 +1,16 @@
 // Copyright © 2024 Metabolist. All rights reserved.
 
 import Combine
+import PhotosUI
 import SwiftUI
+import UniformTypeIdentifiers
 import ViewModels
 
 struct ComposeView: View {
     @ObservedObject var viewModel: NewStatusViewModel
     @EnvironmentObject var rootViewModel: RootViewModel
     @State private var activeCompositionId: CompositionViewModel.Id?
+    @State private var presentedPicker: PickerPresentation?
 
     var body: some View {
         ZStack {
@@ -69,13 +72,35 @@ struct ComposeView: View {
                 dismiss()
             }
         }
+        .onReceive(viewModel.events) { event in
+            handle(event: event)
+        }
         .onAppear {
             activeCompositionId = viewModel.compositionViewModels.first?.id
+        }
+        .sheet(item: $presentedPicker) { picker in
+            pickerContent(for: picker)
         }
     }
 }
 
 private extension ComposeView {
+    enum PickerPresentation: Identifiable {
+        case mediaPicker(CompositionViewModel)
+        case camera(CompositionViewModel)
+        case documentPicker(CompositionViewModel)
+        case editAttachment(AttachmentViewModel, CompositionViewModel)
+
+        var id: String {
+            switch self {
+            case .mediaPicker: return "mediaPicker"
+            case .camera: return "camera"
+            case .documentPicker: return "documentPicker"
+            case let .editAttachment(vm, _): return "editAttachment-\(vm.attachment.id)"
+            }
+        }
+    }
+
     var activeComposition: CompositionViewModel? {
         guard let id = activeCompositionId else {
             return viewModel.compositionViewModels.first
@@ -92,6 +117,61 @@ private extension ComposeView {
         }
     }
 
+    @ViewBuilder
+    func pickerContent(for picker: PickerPresentation) -> some View {
+        switch picker {
+        case let .mediaPicker(composition):
+            PhotoPicker(
+                selectionLimit: composition.canAddNonImageAttachment
+                    ? CompositionViewModel.maxAttachmentCount
+                    : CompositionViewModel.maxAttachmentCount
+                        - composition.attachmentViewModels.count
+                        - composition.attachmentUploadViewModels.count,
+                filter: composition.canAddNonImageAttachment ? nil : .images
+            ) { results in
+                presentedPicker = nil
+                if !results.isEmpty {
+                    viewModel.attach(
+                        itemProviders: results.map(\.itemProvider),
+                        to: composition)
+                }
+            }
+        case let .camera(composition):
+            CameraPicker(
+                mediaTypes: composition.canAddNonImageAttachment
+                    ? [UTType.image.identifier, UTType.movie.identifier]
+                    : [UTType.image.identifier]
+            ) { info in
+                presentedPicker = nil
+                guard let info = info else { return }
+
+                if let url = info[.mediaURL] as? URL,
+                   let itemProvider = NSItemProvider(contentsOf: url) {
+                    viewModel.attach(itemProviders: [itemProvider], to: composition)
+                } else if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
+                    viewModel.attach(itemProviders: [NSItemProvider(object: image)], to: composition)
+                }
+            }
+            .ignoresSafeArea()
+        case let .documentPicker(composition):
+            DocumentPicker { urls in
+                presentedPicker = nil
+                let itemProviders = urls.compactMap { url -> NSItemProvider? in
+                    guard url.startAccessingSecurityScopedResource() else { return nil }
+                    return NSItemProvider(contentsOf: url)
+                }
+                if !itemProviders.isEmpty {
+                    viewModel.attach(itemProviders: itemProviders, to: composition)
+                }
+                urls.forEach { $0.stopAccessingSecurityScopedResource() }
+            }
+        case let .editAttachment(attachmentVM, compositionVM):
+            NavigationView {
+                EditAttachmentView { (attachmentVM, compositionVM) }
+            }
+        }
+    }
+
     func dismiss() {
         rootViewModel.navigationViewModel?.presentedNewStatusViewModel = nil
     }
@@ -99,7 +179,6 @@ private extension ComposeView {
     func handleAutocompleteSelection(_ replacement: String) {
         guard let composition = activeComposition else { return }
 
-        // Replace the autocomplete query in the text with the selection
         guard let query = composition.autocompleteQuery,
               let range = composition.text.range(
                 of: query,
@@ -107,5 +186,22 @@ private extension ComposeView {
         else { return }
 
         composition.text.replaceSubrange(range, with: replacement.appending(" "))
+    }
+
+    func handle(event: NewStatusViewModel.Event) {
+        switch event {
+        case let .presentMediaPicker(composition):
+            presentedPicker = .mediaPicker(composition)
+        case let .presentCamera(composition):
+            presentedPicker = .camera(composition)
+        case let .presentDocumentPicker(composition):
+            presentedPicker = .documentPicker(composition)
+        case .presentEmojiPicker:
+            break
+        case let .editAttachment(attachmentVM, compositionVM):
+            presentedPicker = .editAttachment(attachmentVM, compositionVM)
+        case let .changeIdentity(identity):
+            viewModel.setIdentity(identity)
+        }
     }
 }
