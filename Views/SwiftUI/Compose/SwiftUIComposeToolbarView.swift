@@ -11,21 +11,23 @@ struct SwiftUIComposeToolbarView: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            HStack(spacing: .defaultSpacing) {
+            HStack(spacing: 0) {
                 attachmentMenu
                 pollButton
                 visibilityMenu
                 contentWarningButton
+                emojiButton
 
                 Spacer()
 
                 Text("\(viewModel.remainingCharacters)")
                     .foregroundColor(viewModel.remainingCharacters < 0 ? .red : .primary)
                     .font(.callout.monospacedDigit())
+                    .padding(.trailing, 4)
 
                 addButton
             }
-            .padding(.horizontal, .defaultSpacing)
+            .padding(.horizontal, 4)
             .frame(height: .minimumButtonDimension)
         }
         .background(.bar)
@@ -33,6 +35,18 @@ struct SwiftUIComposeToolbarView: View {
 }
 
 private extension SwiftUIComposeToolbarView {
+    var toolbarButtonFont: Font { .body }
+
+    func toolbarButton(systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(toolbarButtonFont)
+                .foregroundColor(.primary)
+                .frame(width: .minimumButtonDimension, height: .minimumButtonDimension)
+                .contentShape(Rectangle())
+        }
+    }
+
     var attachmentMenu: some View {
         Menu {
             Button {
@@ -52,7 +66,10 @@ private extension SwiftUIComposeToolbarView {
             }
         } label: {
             Image(systemName: "paperclip")
+                .font(toolbarButtonFont)
                 .foregroundColor(.primary)
+                .frame(width: .minimumButtonDimension, height: .minimumButtonDimension)
+                .contentShape(Rectangle())
         }
         .disabled(!viewModel.canAddAttachment)
         .accessibilityIdentifier("compose.attachment")
@@ -60,11 +77,8 @@ private extension SwiftUIComposeToolbarView {
     }
 
     var pollButton: some View {
-        Button {
+        toolbarButton(systemImage: "chart.bar.xaxis") {
             viewModel.displayPoll.toggle()
-        } label: {
-            Image(systemName: "chart.bar.xaxis")
-                .foregroundColor(.primary)
         }
         .disabled(!viewModel.attachmentViewModels.isEmpty || !viewModel.attachmentUploadViewModels.isEmpty)
         .accessibilityIdentifier("compose.poll")
@@ -86,7 +100,10 @@ private extension SwiftUIComposeToolbarView {
             }
         } label: {
             Image(systemName: parentViewModel.visibility.systemImageName)
+                .font(toolbarButtonFont)
                 .foregroundColor(.primary)
+                .frame(width: .minimumButtonDimension, height: .minimumButtonDimension)
+                .contentShape(Rectangle())
         }
         .disabled(!parentViewModel.canChangeVisibility)
         .accessibilityIdentifier("compose.visibility")
@@ -97,8 +114,10 @@ private extension SwiftUIComposeToolbarView {
             viewModel.displayContentWarning.toggle()
         } label: {
             Text("status.content-warning-abbreviation")
-                .fontWeight(.bold)
+                .font(.body.bold())
                 .foregroundColor(.primary)
+                .frame(width: .minimumButtonDimension, height: .minimumButtonDimension)
+                .contentShape(Rectangle())
         }
         .accessibilityIdentifier("compose.content-warning")
         .accessibilityHint(Text(viewModel.displayContentWarning
@@ -106,12 +125,17 @@ private extension SwiftUIComposeToolbarView {
             : "compose.content-warning-button.add"))
     }
 
+    var emojiButton: some View {
+        toolbarButton(systemImage: "face.smiling") {
+            parentViewModel.presentEmojiPicker(tag: 0)
+        }
+        .accessibilityIdentifier("compose.emoji")
+        .accessibilityLabel(Text("compose.emoji-button"))
+    }
+
     var addButton: some View {
-        Button {
+        toolbarButton(systemImage: "plus.circle.fill") {
             parentViewModel.insert(after: viewModel)
-        } label: {
-            Image(systemName: "plus.circle.fill")
-                .foregroundColor(.primary)
         }
         .disabled(!viewModel.isPostable)
         .accessibilityIdentifier("compose.add")

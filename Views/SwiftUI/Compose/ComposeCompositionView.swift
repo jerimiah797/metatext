@@ -15,11 +15,24 @@ struct ComposeCompositionView: View {
                     .padding(.horizontal)
             }
 
-            ComposeTextEditor(
-                text: $viewModel.text,
-                textToSelectedRange: $viewModel.textToSelectedRange,
-                isInitialFirstResponder: isFirstComposition)
-                .padding(.horizontal)
+            HStack(alignment: .top, spacing: .defaultSpacing) {
+                avatarView
+                    .padding(.leading)
+
+                ZStack(alignment: .topLeading) {
+                    if viewModel.text.isEmpty {
+                        Text("compose.prompt")
+                            .foregroundColor(.secondary)
+                            .padding(.top, 1)
+                    }
+
+                    ComposeTextEditor(
+                        text: $viewModel.text,
+                        textToSelectedRange: $viewModel.textToSelectedRange,
+                        isInitialFirstResponder: isFirstComposition)
+                }
+                .padding(.trailing)
+            }
 
             if !viewModel.attachmentViewModels.isEmpty || !viewModel.attachmentUploadViewModels.isEmpty {
                 ComposeAttachmentsView(
@@ -38,5 +51,23 @@ struct ComposeCompositionView: View {
 private extension ComposeCompositionView {
     var isFirstComposition: Bool {
         parentViewModel.compositionViewModels.first?.id == viewModel.id
+    }
+
+    var avatarView: some View {
+        AsyncImage(url: avatarURL) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } placeholder: {
+            Color(.secondarySystemBackground)
+        }
+        .frame(width: .avatarDimension, height: .avatarDimension)
+        .clipShape(Circle())
+    }
+
+    var avatarURL: URL? {
+        let identity = parentViewModel.identityContext.identity
+        let animate = parentViewModel.identityContext.appPreferences.animateAvatars == .everywhere
+        return (animate ? identity.account?.avatar : identity.account?.avatarStatic)?.url
     }
 }
