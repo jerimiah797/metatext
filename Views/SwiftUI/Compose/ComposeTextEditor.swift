@@ -28,6 +28,12 @@ struct ComposeTextEditor: UIViewRepresentable {
         }
     }
 
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView textView: UITextView, context: Context) -> CGSize? {
+        let width = proposal.width ?? UIScreen.main.bounds.width
+        let size = textView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: max(size.height, 40))
+    }
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
@@ -45,6 +51,7 @@ struct ComposeTextEditor: UIViewRepresentable {
             tv.textContainerInset = .zero
             tv.textContainer.lineFragmentPadding = 0
             tv.keyboardType = .twitter
+            tv.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
             return tv
         }()
 
