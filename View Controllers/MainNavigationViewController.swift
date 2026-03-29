@@ -218,9 +218,18 @@ private extension MainNavigationViewController {
             }
         }
 
-        let newStatusViewController =  NewStatusViewController(viewModel: newStatusViewModel,
-                                                               rootViewModel: rootViewModel)
-        let navigationController = UINavigationController(rootViewController: newStatusViewController)
+        let rootViewController: UIViewController
+
+        if viewModel.identityContext.appPreferences.useSwiftUICompose {
+            let composeView = ComposeView(viewModel: newStatusViewModel)
+                .environmentObject(rootViewModel)
+            rootViewController = UIHostingController(rootView: composeView)
+        } else {
+            rootViewController = NewStatusViewController(viewModel: newStatusViewModel,
+                                                         rootViewModel: rootViewModel)
+        }
+
+        let navigationController = UINavigationController(rootViewController: rootViewController)
 
         if UIDevice.current.userInterfaceIdiom == .phone {
             navigationController.modalPresentationStyle = .fullScreen

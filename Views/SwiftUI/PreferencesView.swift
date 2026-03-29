@@ -113,6 +113,8 @@ struct PreferencesView: View {
                         Toggle("preferences.links.use-universal-links",
                                isOn: $identityContext.appPreferences.useUniversalLinks)
                     }
+                    Toggle("preferences.use-swiftui-compose",
+                           isOn: $identityContext.appPreferences.useSwiftUICompose)
                 }
                 Group {
                     Picker("preferences.media.autoplay.gifs",

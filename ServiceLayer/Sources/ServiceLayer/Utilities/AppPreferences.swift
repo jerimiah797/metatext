@@ -201,6 +201,11 @@ public extension AppPreferences {
         get { self[.useUniversalLinks] ?? true }
         set { self[.useUniversalLinks] = newValue }
     }
+
+    var useSwiftUICompose: Bool {
+        get { self[.useSwiftUICompose] ?? false }
+        set { self[.useSwiftUICompose] = newValue }
+    }
 }
 
 private extension AppPreferences {
@@ -223,6 +228,7 @@ private extension AppPreferences {
         case notificationSounds
         case openLinksInDefaultBrowser
         case useUniversalLinks
+        case useSwiftUICompose
     }
 
     subscript<T>(index: Item) -> T? {

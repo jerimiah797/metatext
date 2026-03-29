@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0001012024032800000001 /* ComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000011 /* ComposeView.swift */; };
+		AA0001012024032800000002 /* ComposeCompositionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000012 /* ComposeCompositionView.swift */; };
+		AA0001012024032800000003 /* ComposeTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001012024032800000013 /* ComposeTextEditor.swift */; };
 		38F607D74D745D6CFA6ECD6C /* ComposeAutocompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC03A1B63F4717900C3DA94 /* ComposeAutocompleteView.swift */; };
 		75F7B3CC291F51D300FDE7C7 /* SwipeableNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F7B3CB291F51D300FDE7C7 /* SwipeableNavigationController.swift */; };
 		A8686F0660C3411F8CC586D6 /* EditFilterV2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B5A44AB9FA95FA0C7EDA7B /* EditFilterV2View.swift */; };
@@ -293,6 +296,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AA0001012024032800000011 /* ComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeView.swift; sourceTree = "<group>"; };
+		AA0001012024032800000012 /* ComposeCompositionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeCompositionView.swift; sourceTree = "<group>"; };
+		AA0001012024032800000013 /* ComposeTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeTextEditor.swift; sourceTree = "<group>"; };
 		2805F2DF26044E8900670835 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2805F2E026044E8900670835 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4FC03A1B63F4717900C3DA94 /* ComposeAutocompleteView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Views/UIKit/ComposeAutocompleteView.swift; sourceTree = SOURCE_ROOT; };
@@ -626,11 +632,22 @@
 			path = UIKit;
 			sourceTree = "<group>";
 		};
+		AA0001012024032800000020 /* Compose */ = {
+			isa = PBXGroup;
+			children = (
+				AA0001012024032800000011 /* ComposeView.swift */,
+				AA0001012024032800000012 /* ComposeCompositionView.swift */,
+				AA0001012024032800000013 /* ComposeTextEditor.swift */,
+			);
+			path = Compose;
+			sourceTree = "<group>";
+		};
 		D021A66425C3E170008A0C0D /* SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
 				D021A62B25C38570008A0C0D /* AboutView.swift */,
 				D021A63525C38ADB008A0C0D /* AcknowledgmentsView.swift */,
+				AA0001012024032800000020 /* Compose */,
 				D02D33EE25EE04CC000A35CC /* AddRemoveFromListsView.swift */,
 				D0D4302C25F0904D00BE5504 /* AppIconPreferencesView.swift */,
 				D08E52602579D2E100FA2C5F /* DomainBlocksView.swift */,
@@ -1367,6 +1384,9 @@
 				D0D2AC3925BBEC0F003D5DF2 /* CollectionSection+Extensions.swift in Sources */,
 				C87A3E3E260FFFBD6183935F /* ComposeToolbarView.swift in Sources */,
 				C2881B810C5A1E9A5DF9EB79 /* ComposeAutocompleteView.swift in Sources */,
+				AA0001012024032800000001 /* ComposeView.swift in Sources */,
+				AA0001012024032800000002 /* ComposeCompositionView.swift in Sources */,
+				AA0001012024032800000003 /* ComposeTextEditor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
