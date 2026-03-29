@@ -104,3 +104,33 @@ struct EditAttachmentSheetView: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
 }
+
+struct EmojiPickerSheetView: UIViewControllerRepresentable {
+    let identityContext: IdentityContext
+    let onSelect: (String) -> Void
+    let onDismiss: () -> Void
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let emojiPickerViewModel = EmojiPickerViewModel(identityContext: identityContext)
+
+        let emojiPickerController = EmojiPickerViewController(
+            viewModel: emojiPickerViewModel
+        ) { _, emoji in
+            onSelect(emoji.applyingDefaultSkinTone(identityContext: identityContext).escaped)
+        } deletionAction: { _ in
+            // No-op for sheet presentation
+        } searchPresentationAction: { _, _ in
+            // No-op for sheet presentation — search works inline
+        }
+
+        let nav = UINavigationController(rootViewController: emojiPickerController)
+
+        emojiPickerController.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            systemItem: .close,
+            primaryAction: UIAction { _ in onDismiss() })
+
+        return nav
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+}

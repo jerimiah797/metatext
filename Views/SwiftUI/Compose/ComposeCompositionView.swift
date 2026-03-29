@@ -8,16 +8,15 @@ struct ComposeCompositionView: View {
     @ObservedObject var parentViewModel: NewStatusViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .defaultSpacing) {
-            if viewModel.displayContentWarning {
-                TextField("status.content-warning-abbreviation", text: $viewModel.contentWarning)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
-            }
+        HStack(alignment: .top, spacing: .defaultSpacing) {
+            avatarView
+                .padding(.leading)
 
-            HStack(alignment: .top, spacing: .defaultSpacing) {
-                avatarView
-                    .padding(.leading)
+            VStack(alignment: .leading, spacing: .defaultSpacing) {
+                if viewModel.displayContentWarning {
+                    TextField("status.content-warning-abbreviation", text: $viewModel.contentWarning)
+                        .textFieldStyle(.roundedBorder)
+                }
 
                 ZStack(alignment: .topLeading) {
                     if viewModel.text.isEmpty {
@@ -31,18 +30,18 @@ struct ComposeCompositionView: View {
                         textToSelectedRange: $viewModel.textToSelectedRange,
                         isInitialFirstResponder: isFirstComposition)
                 }
-                .padding(.trailing)
-            }
 
-            if !viewModel.attachmentViewModels.isEmpty || !viewModel.attachmentUploadViewModels.isEmpty {
-                ComposeAttachmentsView(
-                    viewModel: viewModel,
-                    parentViewModel: parentViewModel)
-            }
+                if !viewModel.attachmentViewModels.isEmpty || !viewModel.attachmentUploadViewModels.isEmpty {
+                    ComposeAttachmentsView(
+                        viewModel: viewModel,
+                        parentViewModel: parentViewModel)
+                }
 
-            if viewModel.displayPoll {
-                ComposePollView(viewModel: viewModel)
+                if viewModel.displayPoll {
+                    ComposePollView(viewModel: viewModel)
+                }
             }
+            .padding(.trailing)
         }
         .padding(.vertical)
     }

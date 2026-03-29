@@ -89,6 +89,7 @@ private extension ComposeView {
         case camera(CompositionViewModel)
         case documentPicker(CompositionViewModel)
         case editAttachment(AttachmentViewModel, CompositionViewModel)
+        case emojiPicker
 
         var id: String {
             switch self {
@@ -96,6 +97,7 @@ private extension ComposeView {
             case .camera: return "camera"
             case .documentPicker: return "documentPicker"
             case let .editAttachment(vm, _): return "editAttachment-\(vm.attachment.id)"
+            case .emojiPicker: return "emojiPicker"
             }
         }
     }
@@ -168,6 +170,17 @@ private extension ComposeView {
             EditAttachmentSheetView(
                 attachmentViewModel: attachmentVM,
                 compositionViewModel: compositionVM)
+        case .emojiPicker:
+            EmojiPickerSheetView(
+                identityContext: viewModel.identityContext,
+                onSelect: { emoji in
+                    guard let composition = activeComposition else { return }
+                    composition.text.append(emoji.appending(" "))
+                    presentedPicker = nil
+                },
+                onDismiss: {
+                    presentedPicker = nil
+                })
         }
     }
 
@@ -196,7 +209,7 @@ private extension ComposeView {
         case let .presentDocumentPicker(composition):
             presentedPicker = .documentPicker(composition)
         case .presentEmojiPicker:
-            break
+            presentedPicker = .emojiPicker
         case let .editAttachment(attachmentVM, compositionVM):
             presentedPicker = .editAttachment(attachmentVM, compositionVM)
         case let .changeIdentity(identity):
