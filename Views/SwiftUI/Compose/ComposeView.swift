@@ -121,11 +121,9 @@ private extension ComposeView {
         switch picker {
         case let .mediaPicker(composition):
             PhotoLibraryPicker(
-                selectionLimit: composition.canAddNonImageAttachment
-                    ? CompositionViewModel.maxAttachmentCount
-                    : CompositionViewModel.maxAttachmentCount
-                        - composition.attachmentViewModels.count
-                        - composition.attachmentUploadViewModels.count,
+                selectionLimit: CompositionViewModel.maxAttachmentCount
+                    - composition.attachmentViewModels.count
+                    - composition.attachmentUploadViewModels.count,
                 filter: composition.canAddNonImageAttachment ? .all : .imagesOnly,
                 onComplete: { providers in
                     presentedPicker = nil

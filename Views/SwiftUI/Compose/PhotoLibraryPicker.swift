@@ -18,14 +18,12 @@ struct PhotoLibraryPicker: View {
 
     @StateObject private var viewModel = PhotoLibraryPickerViewModel()
     @State private var isExporting = false
+    @State private var selectedTab = PickerTab.photos
+    @State private var selectedAlbum: AlbumItem?
 
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle(Text(
-                    String.localizedStringWithFormat(
-                        NSLocalizedString("photo-picker.title-%ld", comment: ""),
-                        selectionLimit)))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -35,6 +33,27 @@ struct PhotoLibraryPicker: View {
                             Image(systemName: "xmark")
                         }
                         .accessibilityIdentifier("photo-picker.cancel")
+                    }
+                    ToolbarItem(placement: .principal) {
+                        if selectedAlbum == nil {
+                            VStack(spacing: 2) {
+                                Text(String.localizedStringWithFormat(
+                                    NSLocalizedString("photo-picker.title-%ld", comment: ""),
+                                    selectionLimit))
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Picker("", selection: $selectedTab.animation()) {
+                                    Text("photo-picker.tab.photos").tag(PickerTab.photos)
+                                    Text("photo-picker.tab.albums").tag(PickerTab.albums)
+                                }
+                                .pickerStyle(.segmented)
+                                .frame(width: 200)
+                                .accessibilityIdentifier("photo-picker.tabs")
+                            }
+                        } else {
+                            Text(selectedAlbum?.title ?? "")
+                                .font(.headline)
+                        }
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         if isExporting {
@@ -55,7 +74,30 @@ struct PhotoLibraryPicker: View {
         .task {
             await viewModel.requestAccessIfNeeded()
             viewModel.fetchAssets(filter: filter)
+            viewModel.fetchAlbums(filter: filter)
         }
+    }
+}
+
+// MARK: - Types
+
+enum PickerTab {
+    case photos
+    case albums
+}
+
+struct AlbumItem: Identifiable, Hashable {
+    let id: String
+    let collection: PHAssetCollection
+    let title: String
+    let count: Int
+
+    static func == (lhs: AlbumItem, rhs: AlbumItem) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -66,7 +108,7 @@ private extension PhotoLibraryPicker {
     var content: some View {
         switch viewModel.authorizationStatus {
         case .authorized, .limited:
-            photoGrid
+            authorizedContent
         case .denied, .restricted:
             deniedView
         case .notDetermined:
@@ -76,26 +118,81 @@ private extension PhotoLibraryPicker {
         }
     }
 
-    var photoGrid: some View {
+    @ViewBuilder
+    var authorizedContent: some View {
+        if let album = selectedAlbum {
+            albumDetailGrid(album: album)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        // Empty — we use the back behavior below
+                    }
+                }
+                .navigationBarBackButtonHidden(true)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            selectedAlbum = nil
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                Text("photo-picker.tab.albums")
+                            }
+                        }
+                        .accessibilityIdentifier("photo-picker.back")
+                    }
+                }
+        } else {
+            switch selectedTab {
+            case .photos:
+                photoGrid(fetchResult: viewModel.allAssetsFetchResult, idPrefix: "all")
+            case .albums:
+                albumsList
+            }
+        }
+    }
+
+    func photoGrid(fetchResult: PHFetchResult<PHAsset>?, idPrefix: String) -> some View {
         ScrollView {
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 4),
                 spacing: 2
             ) {
-                ForEach(0..<viewModel.assetCount, id: \.self) { index in
+                let count = fetchResult?.count ?? 0
+                ForEach(0..<count, id: \.self) { index in
+                    let asset = fetchResult!.object(at: index)
                     PhotoGridCell(
-                        asset: viewModel.asset(at: index),
+                        asset: asset,
                         index: index,
-                        selectionNumber: viewModel.selectionIndex(at: index),
+                        selectionNumber: viewModel.selectionIndex(of: asset),
                         cachingManager: viewModel.cachingManager,
                         thumbnailSize: viewModel.thumbnailSize
                     ) {
-                        viewModel.toggle(at: index)
+                        viewModel.toggleAsset(asset)
                     }
                     .accessibilityIdentifier("photo-picker.photo-\(index)")
                 }
             }
         }
+    }
+
+    func albumDetailGrid(album: AlbumItem) -> some View {
+        let fetchResult = viewModel.fetchAlbumAssets(album: album, filter: filter)
+        return photoGrid(fetchResult: fetchResult, idPrefix: "album")
+    }
+
+    var albumsList: some View {
+        List(viewModel.albums) { album in
+            Button {
+                selectedAlbum = album
+            } label: {
+                AlbumRow(
+                    album: album,
+                    cachingManager: viewModel.cachingManager,
+                    thumbnailSize: viewModel.albumThumbnailSize)
+            }
+            .accessibilityIdentifier("photo-picker.album-\(album.id)")
+        }
+        .listStyle(.plain)
     }
 
     var deniedView: some View {
@@ -121,6 +218,74 @@ private extension PhotoLibraryPicker {
         viewModel.buildItemProviders { providers in
             isExporting = false
             onComplete(providers)
+        }
+    }
+}
+
+// MARK: - Album Row
+
+private struct AlbumRow: View {
+    let album: AlbumItem
+    let cachingManager: PHCachingImageManager
+    let thumbnailSize: CGSize
+
+    @State private var thumbnail: UIImage?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            if let thumbnail = thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 64, height: 64)
+                    .clipped()
+                    .cornerRadius(6)
+            } else {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color(.secondarySystemBackground))
+                    .frame(width: 64, height: 64)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(album.title)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                Text("\(album.count)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+        }
+        .task {
+            await loadAlbumThumbnail()
+        }
+    }
+
+    func loadAlbumThumbnail() async {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.fetchLimit = 1
+
+        let assets = PHAsset.fetchAssets(in: album.collection, options: fetchOptions)
+        guard let firstAsset = assets.firstObject else { return }
+
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .opportunistic
+        options.isNetworkAccessAllowed = true
+
+        thumbnail = await withCheckedContinuation { continuation in
+            cachingManager.requestImage(
+                for: firstAsset,
+                targetSize: thumbnailSize,
+                contentMode: .aspectFill,
+                options: options
+            ) { image, info in
+                let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
+                if !isDegraded {
+                    continuation.resume(returning: image)
+                }
+            }
         }
     }
 }
@@ -212,9 +377,6 @@ private extension PhotoGridCell {
                 let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
                 if !isDegraded {
                     continuation.resume(returning: image)
-                } else if thumbnail == nil {
-                    // Accept degraded only if we have nothing yet
-                    // But don't resume continuation — wait for the full image
                 }
             }
         }
@@ -232,15 +394,20 @@ private extension PhotoGridCell {
 final class PhotoLibraryPickerViewModel: ObservableObject {
     @Published var authorizationStatus: PHAuthorizationStatus = .notDetermined
     @Published var selectedAssets = [PHAsset]()
-    @Published private(set) var assetCount = 0
+    @Published private(set) var albums = [AlbumItem]()
 
     let cachingManager = PHCachingImageManager()
     var selectionLimit = 4
 
-    private var fetchResult: PHFetchResult<PHAsset>?
+    private(set) var allAssetsFetchResult: PHFetchResult<PHAsset>?
 
     let thumbnailSize: CGSize = {
         let side = (UIScreen.main.bounds.width / 4) * UIScreen.main.scale
+        return CGSize(width: side, height: side)
+    }()
+
+    let albumThumbnailSize: CGSize = {
+        let side: CGFloat = 64 * UIScreen.main.scale
         return CGSize(width: side, height: side)
     }()
 
@@ -264,17 +431,66 @@ final class PhotoLibraryPickerViewModel: ObservableObject {
             options.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
         }
 
-        let result = PHAsset.fetchAssets(with: options)
-        fetchResult = result
-        assetCount = result.count
+        allAssetsFetchResult = PHAsset.fetchAssets(with: options)
     }
 
-    func asset(at index: Int) -> PHAsset {
-        fetchResult!.object(at: index)
+    func fetchAlbums(filter: MediaFilter) {
+        guard authorizationStatus == .authorized || authorizationStatus == .limited else { return }
+
+        var result = [AlbumItem]()
+
+        let smartTypes: [PHAssetCollectionSubtype] = [
+            .smartAlbumUserLibrary,  // Camera Roll / Recents
+            .smartAlbumFavorites,
+            .smartAlbumScreenshots,
+            .smartAlbumSelfPortraits,
+            .smartAlbumPanoramas,
+            .smartAlbumVideos,
+            .smartAlbumLivePhotos,
+            .smartAlbumBursts
+        ]
+
+        for subtype in smartTypes {
+            let collections = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: subtype, options: nil)
+            collections.enumerateObjects { collection, _, _ in
+                let count = self.assetCount(in: collection, filter: filter)
+                if count > 0 {
+                    result.append(AlbumItem(
+                        id: collection.localIdentifier,
+                        collection: collection,
+                        title: collection.localizedTitle ?? "",
+                        count: count))
+                }
+            }
+        }
+
+        let userAlbums = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+        userAlbums.enumerateObjects { collection, _, _ in
+            let count = self.assetCount(in: collection, filter: filter)
+            if count > 0 {
+                result.append(AlbumItem(
+                    id: collection.localIdentifier,
+                    collection: collection,
+                    title: collection.localizedTitle ?? "",
+                    count: count))
+            }
+        }
+
+        albums = result
     }
 
-    func toggle(at index: Int) {
-        let asset = self.asset(at: index)
+    func fetchAlbumAssets(album: AlbumItem, filter: MediaFilter) -> PHFetchResult<PHAsset> {
+        let options = PHFetchOptions()
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+
+        if filter == .imagesOnly {
+            options.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
+        }
+
+        return PHAsset.fetchAssets(in: album.collection, options: options)
+    }
+
+    func toggleAsset(_ asset: PHAsset) {
         if let existingIndex = selectedAssets.firstIndex(of: asset) {
             selectedAssets.remove(at: existingIndex)
         } else if selectedAssets.count < selectionLimit {
@@ -282,8 +498,7 @@ final class PhotoLibraryPickerViewModel: ObservableObject {
         }
     }
 
-    func selectionIndex(at index: Int) -> Int? {
-        let asset = self.asset(at: index)
+    func selectionIndex(of asset: PHAsset) -> Int? {
         guard let i = selectedAssets.firstIndex(of: asset) else { return nil }
         return i + 1
     }
@@ -333,6 +548,14 @@ private extension PhotoLibraryPickerViewModel {
         UTType.webP.identifier
     ]
 
+    func assetCount(in collection: PHAssetCollection, filter: MediaFilter) -> Int {
+        let options = PHFetchOptions()
+        if filter == .imagesOnly {
+            options.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
+        }
+        return PHAsset.fetchAssets(in: collection, options: options).count
+    }
+
     func buildImageProvider(asset: PHAsset, completion: @escaping (NSItemProvider?) -> Void) {
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
@@ -344,8 +567,6 @@ private extension PhotoLibraryPickerViewModel {
                 return
             }
 
-            // If the image is in an uploadable format (JPEG, PNG, GIF, WebP), use it directly.
-            // Otherwise (e.g. HEIC), convert to JPEG.
             let finalData: Data
             let finalUTI: String
 
