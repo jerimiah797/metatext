@@ -10,6 +10,13 @@ public final class IdentityContext: ObservableObject {
     @Published public var appPreferences: AppPreferences
     let service: IdentityService
 
+    public var isGoToSocial: Bool {
+        guard let version = identity.instance?.version else { return false }
+
+        return version.localizedCaseInsensitiveContains("GoToSocial") ||
+               version.contains("+git-")
+    }
+
     init(identity: Identity,
          publisher: AnyPublisher<Identity, Never>,
          service: IdentityService,

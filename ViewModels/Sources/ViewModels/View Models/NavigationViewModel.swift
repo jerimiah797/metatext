@@ -111,7 +111,7 @@ public extension NavigationViewModel {
         let version = identityContext.identity.instance?.version
         guard let editProfileURL = editProfileURL(instanceURI: instanceURI, version: version) else { return }
 
-        if isGoToSocial(version: version) {
+        if identityContext.isGoToSocial {
             presentingSecondaryNavigation = false
             navigationsSubject.send(.url(editProfileURL))
         } else {
@@ -125,7 +125,7 @@ public extension NavigationViewModel {
         let version = identityContext.identity.instance?.version
         guard let accountSettingsURL = accountSettingsURL(instanceURI: instanceURI, version: version) else { return }
 
-        if isGoToSocial(version: version) {
+        if identityContext.isGoToSocial {
             presentingSecondaryNavigation = false
             navigationsSubject.send(.url(accountSettingsURL))
         } else {
@@ -241,17 +241,8 @@ public extension NavigationViewModel {
 }
 
 private extension NavigationViewModel {
-    func isGoToSocial(version: String?) -> Bool {
-        guard let version = version else { return false }
-
-        // GoToSocial versions contain "gotosocial" (case-insensitive)
-        // or have the format "x.y.z+git-hash" which is GoToSocial-specific
-        return version.localizedCaseInsensitiveContains("GoToSocial") ||
-               version.contains("+git-")
-    }
-
     func accountSettingsURL(instanceURI: String, version: String?) -> URL? {
-        let path = isGoToSocial(version: version) ? "/settings" : "/auth/edit"
+        let path = identityContext.isGoToSocial ? "/settings" : "/auth/edit"
         if instanceURI.hasPrefix("https://") {
             return URL(string: "\(instanceURI)\(path)")
         } else {
@@ -260,7 +251,7 @@ private extension NavigationViewModel {
     }
 
     func editProfileURL(instanceURI: String, version: String?) -> URL? {
-        let path = isGoToSocial(version: version) ? "/settings/user/profile" : "/settings/profile"
+        let path = identityContext.isGoToSocial ? "/settings/user/profile" : "/settings/profile"
         if instanceURI.hasPrefix("https://") {
             return URL(string: "\(instanceURI)\(path)")
         } else {

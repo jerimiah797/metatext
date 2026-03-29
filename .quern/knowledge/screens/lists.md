@@ -35,8 +35,8 @@ Manage user-created lists. Lists allow grouping followed accounts into custom ti
 | Heading | Lists | (none) | Nav bar title |
 | Button | Back | `BackButton` | Returns to previous screen |
 | Button | Edit | (none) | Top right, enables delete/reorder mode |
-| TextField | (none) | (none) | New list title input, placeholder "New List Title" |
-| Button | Add | (none) | Creates a new list. Disabled until title is entered. |
+| TextField | (none) | `lists.new-list-title` | New list title input, placeholder "New List Title" |
+| Button | Add | `lists.add` | Creates a new list. Disabled until title is entered. |
 
 ## States
 
@@ -49,5 +49,5 @@ Manage user-created lists. Lists allow grouping followed accounts into custom ti
 ## Quirks
 
 - **Mastodon feature**: Lists work on Mastodon but may fail or show empty on GoToSocial (GtS doesn't fully support the lists API).
-- The "New List Title" text field has no identifier.
+- The "New List Title" text field has identifier `lists.new-list-title`.
 - The Add button is disabled until text is entered in the title field.

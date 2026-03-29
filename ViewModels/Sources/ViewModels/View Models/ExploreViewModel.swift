@@ -69,10 +69,10 @@ public extension ExploreViewModel {
 
     func refresh() {
         let version = identityContext.identity.instance?.version
-        exploreLogger.debug("refresh() - version: \(version ?? "nil", privacy: .public), isGoToSocial: \(self.isGoToSocial(version: version))")
+        exploreLogger.debug("refresh() - version: \(version ?? "nil", privacy: .public), isGoToSocial: \(self.identityContext.isGoToSocial)")
 
         // GoToSocial doesn't support /api/v1/trends, so skip the call
-        if isGoToSocial(version: version) {
+        if identityContext.isGoToSocial {
             // Just refresh instance, skip trends
             DispatchQueue.main.async { [weak self] in
                 self?.trends = [] // Clear trends for GoToSocial instances
@@ -125,13 +125,3 @@ public extension ExploreViewModel {
     }
 }
 
-private extension ExploreViewModel {
-    func isGoToSocial(version: String?) -> Bool {
-        guard let version = version else { return false }
-
-        // GoToSocial versions contain "gotosocial" (case-insensitive)
-        // or have the format "x.y.z+git-hash" which is GoToSocial-specific
-        return version.localizedCaseInsensitiveContains("GoToSocial") ||
-               version.contains("+git-")
-    }
-}

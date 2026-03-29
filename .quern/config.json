@@ -1,0 +1,14 @@
+{
+  "app_name": "Metatext",
+  "bundle_id": "org.arctian.metatext",
+  "workspace": "Metatext.xcodeproj",
+  "scheme": "Metatext",
+  "url_scheme": "",
+  "universal_link_domains": [],
+  "environments": {},
+  "plist_watch": {
+    "watches": []
+  },
+  "state_flags": {},
+  "saved_checkpoints": {}
+}
