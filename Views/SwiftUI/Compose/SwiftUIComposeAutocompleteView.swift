@@ -14,6 +14,7 @@ struct SwiftUIComposeAutocompleteView: View {
     @StateObject private var emojiPickerViewModel: EmojiPickerViewModel
     @State private var searchResults = [AutocompleteResult]()
     @State private var emojiResults = [PickerEmoji]()
+    @State private var isEmojiMode = false
 
     init(parentViewModel: NewStatusViewModel,
          compositionViewModel: CompositionViewModel,
@@ -42,6 +43,7 @@ struct SwiftUIComposeAutocompleteView: View {
         }
         .onChange(of: compositionViewModel.autocompleteQuery) { routeQuery($0) }
         .onReceive(searchViewModel.updates.receive(on: DispatchQueue.main)) { update in
+            guard !isEmojiMode else { return }
             let items: [AutocompleteResult] = update.sections.flatMap(\.items).compactMap { item in
                 switch item {
                 case let .account(account, _, _):
@@ -57,6 +59,7 @@ struct SwiftUIComposeAutocompleteView: View {
             }
         }
         .onReceive(emojiPickerViewModel.$emoji.receive(on: DispatchQueue.main)) { sections in
+            guard isEmojiMode else { return }
             emojiResults = sections.sorted { $0.key < $1.key }.flatMap(\.value)
         }
     }
@@ -154,6 +157,7 @@ private extension SwiftUIComposeAutocompleteView {
 
     func routeQuery(_ query: String?) {
         guard let query = query, !query.isEmpty else {
+            isEmojiMode = false
             searchViewModel.query = ""
             emojiPickerViewModel.query = ""
             searchResults = []
@@ -162,10 +166,12 @@ private extension SwiftUIComposeAutocompleteView {
         }
 
         if query.starts(with: ":") {
+            isEmojiMode = true
             searchViewModel.query = ""
             searchResults = []
             emojiPickerViewModel.query = String(query.dropFirst())
         } else {
+            isEmojiMode = false
             if query.starts(with: "@") {
                 searchViewModel.scope = .accounts
             } else if query.starts(with: "#") {
