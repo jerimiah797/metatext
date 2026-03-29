@@ -44,6 +44,7 @@ struct ComposeTextEditor: UIViewRepresentable {
             tv.backgroundColor = .clear
             tv.textContainerInset = .zero
             tv.textContainer.lineFragmentPadding = 0
+            tv.keyboardType = .twitter
             return tv
         }()
 
