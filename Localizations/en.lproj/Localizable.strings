@@ -118,6 +118,9 @@
 "compose.emoji-button" = "Emoji picker";
 "compose.mark-media-sensitive" = "Mark media as sensitive";
 "compose.photo-library" = "Photo Library";
+"photo-picker.title-%ld" = "Select up to %ld items.";
+"photo-picker.access-denied" = "Metatext needs access to your photo library to add photos to your posts.";
+"photo-picker.open-settings" = "Allow Access in Settings";
 "compose.poll.accessibility.multiple-choices-allowed" = "Mutliple choices allowed";
 "compose.poll.add-choice" = "Add a choice";
 "compose.poll.allow-multiple-choices" = "Allow multiple choices";

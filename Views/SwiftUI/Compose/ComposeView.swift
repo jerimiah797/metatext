@@ -1,7 +1,6 @@
 // Copyright © 2024 Metabolist. All rights reserved.
 
 import Combine
-import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
 import ViewModels
@@ -121,21 +120,23 @@ private extension ComposeView {
     func pickerContent(for picker: PickerPresentation) -> some View {
         switch picker {
         case let .mediaPicker(composition):
-            PhotoPicker(
+            PhotoLibraryPicker(
                 selectionLimit: composition.canAddNonImageAttachment
                     ? CompositionViewModel.maxAttachmentCount
                     : CompositionViewModel.maxAttachmentCount
                         - composition.attachmentViewModels.count
                         - composition.attachmentUploadViewModels.count,
-                filter: composition.canAddNonImageAttachment ? nil : .images
-            ) { results in
-                presentedPicker = nil
-                if !results.isEmpty {
-                    viewModel.attach(
-                        itemProviders: results.map(\.itemProvider),
-                        to: composition)
+                filter: composition.canAddNonImageAttachment ? .all : .imagesOnly,
+                onComplete: { providers in
+                    presentedPicker = nil
+                    if !providers.isEmpty {
+                        viewModel.attach(itemProviders: providers, to: composition)
+                    }
+                },
+                onCancel: {
+                    presentedPicker = nil
                 }
-            }
+            )
         case let .camera(composition):
             CameraPicker(
                 mediaTypes: composition.canAddNonImageAttachment
