@@ -22,6 +22,13 @@ A free, open-source iOS Mastodon client.
 - **Skipped unsupported /trends API for GoToSocial** — avoids unnecessary 404 errors on the Explore tab
 - **Native status editing** — edit published posts via `PUT /api/v1/statuses/:id` with an "Edited" label on modified posts
 - **Filters v2** — full support for Mastodon 4.0+ / GoToSocial 0.17+ filters with `.warn` (collapse behind warning) and `.hide` (remove from timeline) actions, per-account v2 toggle, keyword management, client-side fallback for cached posts, and automatic 404 fallback to v1 filters
+- **SwiftUI compose screen** — rewrote the compose screen in SwiftUI (behind a feature flag) with toolbar, autocomplete, polls, attachments, captioning, emoji picker, and avatar display
+- **Custom photo picker** — replaced PHPicker with a custom in-process photo picker supporting albums, selection limits, and human-readable error messages for unsupported media formats
+- **Accessibility improvements** — added accessibility identifiers across all main UI surfaces, content views, compose toolbar, and preferences screens; hid off-screen cells and inactive page views from the accessibility tree for cleaner VoiceOver navigation
+- **Fixed timeline performance** — resolved a ValueObservation feedback loop causing excessive database re-queries, extended the fix to all observation publishers, and added request deduplication
+- **GoToSocial Lists notice** — shows an unsupported-feature notice for Lists on GoToSocial servers instead of silently failing
+- **Fixed account menu button disappearing** after scrolling the timeline
+- **Fixed info label color** for reblogged and pinned statuses
 
 ## Contributing Bug Reports
 
