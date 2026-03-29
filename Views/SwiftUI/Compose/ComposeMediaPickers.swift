@@ -3,6 +3,7 @@
 import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
+import ViewModels
 
 struct PhotoPicker: UIViewControllerRepresentable {
     let selectionLimit: Int
@@ -106,4 +107,36 @@ struct CameraPicker: UIViewControllerRepresentable {
             parent.onComplete(nil)
         }
     }
+}
+
+struct EditAttachmentSheetView: UIViewControllerRepresentable {
+    let attachmentViewModel: AttachmentViewModel
+    let compositionViewModel: CompositionViewModel
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let editVC = EditAttachmentViewController(
+            viewModel: attachmentViewModel,
+            parentViewModel: compositionViewModel)
+
+        let cancelButton = UIBarButtonItem(
+            systemItem: .cancel,
+            primaryAction: UIAction { _ in
+                editVC.presentingViewController?.dismiss(animated: true)
+            })
+        let doneButton = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction { [weak editVC] _ in
+                guard let editVC = editVC else { return }
+                compositionViewModel.update(attachmentViewModel: attachmentViewModel)
+                editVC.presentingViewController?.dismiss(animated: true)
+            })
+
+        editVC.navigationItem.leftBarButtonItem = cancelButton
+        editVC.navigationItem.rightBarButtonItem = doneButton
+        editVC.navigationItem.title = NSLocalizedString("attachment.edit.title", comment: "")
+
+        return UINavigationController(rootViewController: editVC)
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
 }

@@ -166,9 +166,9 @@ private extension ComposeView {
                 urls.forEach { $0.stopAccessingSecurityScopedResource() }
             }
         case let .editAttachment(attachmentVM, compositionVM):
-            NavigationView {
-                EditAttachmentView { (attachmentVM, compositionVM) }
-            }
+            EditAttachmentSheetView(
+                attachmentViewModel: attachmentVM,
+                compositionViewModel: compositionVM)
         }
     }
 
