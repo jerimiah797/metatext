@@ -31,8 +31,8 @@ List of domains the current account has blocked. Unlike Muted/Blocked Users, thi
 | Group | (none) | `Blocked Domains` | Nav bar with identifier |
 | Heading | Blocked Domains | (none) | Nav bar title |
 | Button | Preferences | `BackButton` | Back to Preferences |
-| Button | Edit | (none) | Top right, enables delete mode |
-| GenericElement | (domain) | (none) | Blocked domain row. Label may be empty, value contains data. |
+| Button | Edit | `domain-blocks.edit` | Top right, enables delete mode |
+| GenericElement | (domain) | `domain-blocks.domain.{domain}` | Blocked domain row. Identifier contains the domain name. |
 
 ## States
 
@@ -47,4 +47,4 @@ List of domains the current account has blocked. Unlike Muted/Blocked Users, thi
 - Unlike Muted/Blocked Users, back button returns to Preferences (not the timeline).
 - Has an Edit button (Muted/Blocked Users do not).
 - Nav bar has an identifier (`"Blocked Domains"`) unlike the other moderation screens.
-- Domain row elements may have empty labels — the domain data appears in the value field.
+- Domain rows now have `domain-blocks.domain.{domain}` identifiers. Edit button has `domain-blocks.edit`.

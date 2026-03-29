@@ -29,16 +29,16 @@ Toggle which notification types are shown. Each type is a CheckBox that can be e
 |---|---|---|---|
 | Heading | Notification Types | (none) | Nav bar title |
 | Button | Preferences | `BackButton` | Back button |
-| CheckBox | Follow | (none) | value="1" = enabled |
-| CheckBox | Favorite | (none) | value="1" = enabled |
-| CheckBox | Reblog | (none) | value="1" = enabled |
-| CheckBox | Mention | (none) | value="1" = enabled |
-| CheckBox | Follow Request | (none) | value="1" = enabled |
-| CheckBox | Poll | (none) | value="1" = enabled |
-| CheckBox | Subscription | (none) | value="1" = enabled |
+| CheckBox | Follow | `notification-types.follow` | value="1" = enabled |
+| CheckBox | Favorite | `notification-types.favourite` | value="1" = enabled |
+| CheckBox | Reblog | `notification-types.reblog` | value="1" = enabled |
+| CheckBox | Mention | `notification-types.mention` | value="1" = enabled |
+| CheckBox | Follow Request | `notification-types.follow-request` | value="1" = enabled |
+| CheckBox | Poll | `notification-types.poll` | value="1" = enabled |
+| CheckBox | Subscription | `notification-types.status` | value="1" = enabled |
 
 ## Quirks
 
-- No identifiers on any elements.
+- All toggles have `notification-types.*` identifiers.
 - "Reblog" is used here instead of "Boost" (API terminology vs UI terminology).
 - All toggles default to enabled.

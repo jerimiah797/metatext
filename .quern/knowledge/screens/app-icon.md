@@ -29,11 +29,11 @@ Picker screen for choosing the app's home screen icon. Shows icon options as a g
 |---|---|---|---|
 | Heading | App Icon | (none) | Nav bar title |
 | Button | Preferences | `BackButton` | Back to Preferences |
-| Button | Classic | (none) | Default icon option |
-| Button | Rainbow | (none) | Rainbow variant |
-| Button | Brutalist | (none) | Brutalist variant |
-| Button | Rainbow Brutalist | (none) | Rainbow Brutalist variant |
-| Button | Malow | (none) | Malow variant |
+| Button | Classic | `app-icon.AppIconClassic` | Default icon option |
+| Button | Rainbow | `app-icon.AppIconRainbow` | Rainbow variant |
+| Button | Brutalist | `app-icon.AppIconBrutalist` | Brutalist variant |
+| Button | Rainbow Brutalist | `app-icon.AppIconRainbowBrutalist` | Rainbow Brutalist variant |
+| Button | Malow | `app-icon.AppIconMalow` | Malow variant |
 
 ## States
 
@@ -43,6 +43,6 @@ Picker screen for choosing the app's home screen icon. Shows icon options as a g
 
 ## Quirks
 
-- No identifiers on any elements.
+- All icon buttons have `app-icon.*` identifiers using the raw enum value.
 - Icon buttons are arranged in a grid, not a list.
 - Tapping an icon immediately changes the app icon — no confirmation dialog.

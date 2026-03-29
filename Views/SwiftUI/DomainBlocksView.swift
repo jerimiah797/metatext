@@ -9,6 +9,7 @@ struct DomainBlocksView: View {
         Form {
             ForEach(viewModel.domainBlocks, id: \.self) { domain in
                 Text(domain)
+                    .accessibilityIdentifier("domain-blocks.domain.\(domain)")
                     .onAppear {
                         if domain == viewModel.domainBlocks.last {
                             viewModel.request()
@@ -32,6 +33,7 @@ struct DomainBlocksView: View {
         .toolbar {
             ToolbarItem(placement: ToolbarItemPlacement.navigationBarTrailing) {
                 EditButton()
+                    .accessibilityIdentifier("domain-blocks.edit")
             }
         }
     }

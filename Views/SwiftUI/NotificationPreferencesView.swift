@@ -18,8 +18,10 @@ struct NotificationPreferencesView: View {
             Section {
                 Toggle("preferences.notifications.include-pictures",
                        isOn: $identityContext.appPreferences.notificationPictures)
+                .accessibilityIdentifier("notifications.include-pictures")
                 Toggle("preferences.notifications.include-account-name",
                        isOn: $identityContext.appPreferences.notificationAccountName)
+                .accessibilityIdentifier("notifications.include-account-name")
             }
             Section(header: Text("preferences.notifications.sounds")) {
                 ForEach(MastodonNotification.NotificationType.allCasesExceptUnknown) { type in
@@ -34,6 +36,7 @@ struct NotificationPreferencesView: View {
                     }) {
                         Label(type.localizedStringKey, systemImage: type.systemImageName)
                     }
+                    .accessibilityIdentifier("notifications.sound.\(type.id)")
                 }
             }
         }

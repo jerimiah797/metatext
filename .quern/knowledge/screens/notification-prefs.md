@@ -36,27 +36,26 @@ Configures push notification appearance and per-type sounds. Not to be confused 
 
 | Element Type | Label | Identifier | Notes |
 |---|---|---|---|
-| CheckBox | Include pictures | (none) | value="1" = show images in push notifications |
-| CheckBox | Include account name | (none) | value="0" = hide account name in pushes |
+| CheckBox | Include pictures | `notifications.include-pictures` | value="1" = show images in push notifications |
+| CheckBox | Include account name | `notifications.include-account-name` | value="0" = hide account name in pushes |
 
 ### Sounds (section header: "Sounds")
 
 | Element Type | Label | Identifier | Notes |
 |---|---|---|---|
 | Heading | Sounds | (none) | Section header |
-| CheckBox | Follow | (none) | Sound on follow notification |
-| CheckBox | Mention | (none) | Sound on mention notification |
-| CheckBox | Reblog | (none) | Sound on boost notification |
-| CheckBox | Favorite | (none) | Sound on favorite notification |
-| CheckBox | Poll | (none) | Sound on poll result notification |
-| CheckBox | Follow Request | (none) | Sound on follow request notification |
-| CheckBox | Subscription | (none) | Sound on subscription notification |
-| CheckBox | (empty label) | (none) | Unknown notification type — label is empty |
+| CheckBox | Follow | `notifications.sound.follow` | Sound on follow notification |
+| CheckBox | Mention | `notifications.sound.mention` | Sound on mention notification |
+| CheckBox | Reblog | `notifications.sound.reblog` | Sound on boost notification |
+| CheckBox | Favorite | `notifications.sound.favourite` | Sound on favorite notification |
+| CheckBox | Poll | `notifications.sound.poll` | Sound on poll result notification |
+| CheckBox | Follow Request | `notifications.sound.followRequest` | Sound on follow request notification |
+| CheckBox | Subscription | `notifications.sound.status` | Sound on subscription notification |
+| CheckBox | (empty label) | `notifications.sound.update` | Update notification type — label is empty |
 
 ## Quirks
 
-- No identifiers on any elements.
+- All elements have `notifications.*` identifiers.
 - The nav bar title "Notifications" is the same as the Notifications tab — use `identify_by` with "Include pictures" checkbox to disambiguate.
 - Sound toggle labels reuse the same names as Notification Types screen (Follow, Mention, Reblog, etc.) — different screens despite similar content.
-- One sound toggle has an empty label — possibly a notification type not yet labeled in the app.
 - "Reblog" terminology used instead of "Boost" (API terminology).

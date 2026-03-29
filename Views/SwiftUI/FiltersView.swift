@@ -21,6 +21,7 @@ struct FiltersView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                .accessibilityIdentifier("filters.use-v2")
             }
 
             if viewModel.useFiltersV2 {
@@ -30,6 +31,7 @@ struct FiltersView: View {
                                                      identityContext: viewModel.identityContext))) {
                         Label("add", systemImage: "plus.circle")
                     }
+                    .accessibilityIdentifier("filters.add")
                 }
                 v2Section(title: "filters.active", filters: viewModel.activeFiltersV2)
                 v2Section(title: "filters.expired", filters: viewModel.expiredFiltersV2)
@@ -40,6 +42,7 @@ struct FiltersView: View {
                                                      identityContext: viewModel.identityContext))) {
                         Label("add", systemImage: "plus.circle")
                     }
+                    .accessibilityIdentifier("filters.add")
                 }
                 section(title: "filters.active", filters: viewModel.activeFilters)
                 section(title: "filters.expired", filters: viewModel.expiredFilters)
@@ -49,6 +52,7 @@ struct FiltersView: View {
         .toolbar {
             ToolbarItem(placement: ToolbarItemPlacement.navigationBarTrailing) {
                 EditButton()
+                    .accessibilityIdentifier("filters.edit")
             }
         }
         .alertItem($viewModel.alertItem)
@@ -71,6 +75,7 @@ private extension FiltersView {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .accessibilityIdentifier("filters.filter.\(filter.id)")
                 }
                 .onDelete {
                     guard let index = $0.first else { return }
@@ -105,6 +110,7 @@ private extension FiltersView {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .accessibilityIdentifier("filters.filter-v2.\(filter.id)")
                 }
                 .onDelete {
                     guard let index = $0.first else { return }

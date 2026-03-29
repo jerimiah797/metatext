@@ -47,6 +47,7 @@ private extension AppIconPreferencesView {
                     .foregroundColor(.primary)
             }
         }
+        .accessibilityIdentifier("app-icon.\(appIcon.rawValue)")
     }
 
     func set(appIcon: AppIcon) {

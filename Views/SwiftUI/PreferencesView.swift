@@ -24,23 +24,29 @@ struct PreferencesView: View {
                     NavigationLink("preferences.filters",
                                    destination: FiltersView(
                                     viewModel: .init(identityContext: viewModel.identityContext)))
+                    .accessibilityIdentifier("preferences.filters")
                     if viewModel.shouldShowNotificationTypePreferences {
                         NavigationLink("preferences.notification-types",
                                        destination: NotificationTypesPreferencesView(
                                         viewModel: .init(identityContext: viewModel.identityContext)))
+                        .accessibilityIdentifier("preferences.notification-types")
                     }
                     Button("preferences.muted-users") {
                         rootViewModel.navigationViewModel?.navigateToMutedUsers()
                     }
                     .foregroundColor(.primary)
+                    .accessibilityIdentifier("preferences.muted-users")
                     Button("preferences.blocked-users") {
                         rootViewModel.navigationViewModel?.navigateToBlockedUsers()
                     }
                     .foregroundColor(.primary)
+                    .accessibilityIdentifier("preferences.blocked-users")
                     NavigationLink("preferences.blocked-domains",
                                    destination: DomainBlocksView(viewModel: viewModel.domainBlocksViewModel()))
+                    .accessibilityIdentifier("preferences.blocked-domains")
                     Toggle("preferences.use-preferences-from-server",
                            isOn: $viewModel.preferences.useServerPostingReadingPreferences)
+                    .accessibilityIdentifier("preferences.use-server-preferences")
                     Group {
                         Picker("preferences.posting-default-visiblility",
                                selection: $viewModel.preferences.postingDefaultVisibility) {
@@ -48,8 +54,10 @@ struct PreferencesView: View {
                             Text("status.visibility.unlisted").tag(Status.Visibility.unlisted)
                             Text("status.visibility.private").tag(Status.Visibility.private)
                         }
+                        .accessibilityIdentifier("preferences.posting-default-visibility")
                         Toggle("preferences.posting-default-sensitive",
                                isOn: $viewModel.preferences.postingDefaultSensitive)
+                        .accessibilityIdentifier("preferences.posting-default-sensitive")
                     }
                     .disabled(viewModel.preferences.useServerPostingReadingPreferences)
                 }
@@ -60,8 +68,10 @@ struct PreferencesView: View {
                         Text("preferences.expand-media.show-all").tag(Preferences.ExpandMedia.showAll)
                         Text("preferences.expand-media.hide-all").tag(Preferences.ExpandMedia.hideAll)
                     }
+                    .accessibilityIdentifier("preferences.reading-expand-media")
                     Toggle("preferences.reading-expand-spoilers",
                            isOn: $viewModel.preferences.readingExpandSpoilers)
+                    .accessibilityIdentifier("preferences.reading-expand-spoilers")
                 }
                 .disabled(viewModel.preferences.useServerPostingReadingPreferences
                             && viewModel.identityContext.identity.authenticated)
@@ -87,34 +97,44 @@ struct PreferencesView: View {
                                 }
                             }
                         }
+                        .accessibilityIdentifier("preferences.app-icon")
                     }
                     Picker("preferences.app.color-scheme", selection: $identityContext.appPreferences.colorScheme) {
                         ForEach(AppPreferences.ColorScheme.allCases) { option in
                             Text(option.localizedStringKey).tag(option)
                         }
                     }
+                    .accessibilityIdentifier("preferences.color-scheme")
                     NavigationLink("preferences.notifications",
                                    destination: NotificationPreferencesView(viewModel: viewModel))
+                    .accessibilityIdentifier("preferences.notifications")
                     Picker("preferences.status-word",
                            selection: $identityContext.appPreferences.statusWord) {
                         ForEach(AppPreferences.StatusWord.allCases) { option in
                             Text(option.localizedStringKey).tag(option)
                         }
                     }
+                    .accessibilityIdentifier("preferences.status-word")
                     Toggle("preferences.show-reblog-and-favorite-counts",
                            isOn: $identityContext.appPreferences.showReblogAndFavoriteCounts)
+                    .accessibilityIdentifier("preferences.show-reblog-and-favorite-counts")
                     Toggle("preferences.require-double-tap-to-reblog",
                            isOn: $identityContext.appPreferences.requireDoubleTapToReblog)
+                    .accessibilityIdentifier("preferences.require-double-tap-to-reblog")
                     Toggle("preferences.require-double-tap-to-favorite",
                            isOn: $identityContext.appPreferences.requireDoubleTapToFavorite)
+                    .accessibilityIdentifier("preferences.require-double-tap-to-favorite")
                     Toggle("preferences.links.open-in-default-browser",
                            isOn: $identityContext.appPreferences.openLinksInDefaultBrowser)
+                    .accessibilityIdentifier("preferences.open-in-default-browser")
                     if !identityContext.appPreferences.openLinksInDefaultBrowser {
                         Toggle("preferences.links.use-universal-links",
                                isOn: $identityContext.appPreferences.useUniversalLinks)
+                        .accessibilityIdentifier("preferences.use-universal-links")
                     }
                     Toggle("preferences.use-swiftui-compose",
                            isOn: $identityContext.appPreferences.useSwiftUICompose)
+                    .accessibilityIdentifier("preferences.use-swiftui-compose")
                 }
                 Group {
                     Picker("preferences.media.autoplay.gifs",
@@ -123,22 +143,27 @@ struct PreferencesView: View {
                             Text(option.localizedStringKey).tag(option)
                         }
                     }
+                    .accessibilityIdentifier("preferences.autoplay-gifs")
                     Picker("preferences.media.autoplay.videos",
                            selection: $identityContext.appPreferences.autoplayVideos) {
                         ForEach(AppPreferences.Autoplay.allCases) { option in
                             Text(option.localizedStringKey).tag(option)
                         }
                     }
+                    .accessibilityIdentifier("preferences.autoplay-videos")
                     Picker("preferences.media.avatars.animate",
                            selection: $identityContext.appPreferences.animateAvatars) {
                         ForEach(AppPreferences.AnimateAvatars.allCases) { option in
                             Text(option.localizedStringKey).tag(option)
                         }
                     }
+                    .accessibilityIdentifier("preferences.animate-avatars")
                     Toggle("preferences.media.custom-emojis.animate",
                            isOn: $identityContext.appPreferences.animateCustomEmojis)
+                    .accessibilityIdentifier("preferences.animate-custom-emojis")
                     Toggle("preferences.media.headers.animate",
                            isOn: $identityContext.appPreferences.animateHeaders)
+                    .accessibilityIdentifier("preferences.animate-headers")
                 }
                 if viewModel.identityContext.identity.authenticated
                     && !viewModel.identityContext.identity.pending {
@@ -148,6 +173,7 @@ struct PreferencesView: View {
                             Text(option.localizedStringKey).tag(option)
                         }
                     }
+                    .accessibilityIdentifier("preferences.home-timeline-position")
                 }
             }
         }

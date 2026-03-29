@@ -12,9 +12,9 @@ reachable_from:
 
 leads_to:
   - screen: "[[screens/add-filter]]"
-    action: 'tap_element label="Add" element_type="button"'
+    action: 'tap_element identifier="filters.add"'
   - screen: "[[screens/edit-filter]]"
-    action: "tap a filter row button"
+    action: 'tap_element identifier="filters.filter.{id}" or identifier="filters.filter-v2.{id}"'
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Preferences" element_type="button"'
     condition: "Back button label shows 'Preferences'"
@@ -36,12 +36,12 @@ Manages content filters for the current account. Supports both v1 (keyword) and 
 | Group | (none) | `Filters` | Nav bar with identifier |
 | Heading | Filters | (none) | Nav bar title |
 | Button | Preferences | `BackButton` | Back button, label shows parent screen name |
-| Button | Edit | (none) | Top right, enables delete mode on filter rows |
-| CheckBox | Use new filter format, Requires Mastodon 4.0 or GoToSocial 0.17+ | (none) | v2 toggle. value="1" = v2 enabled. |
-| Button | Add | (none) | Add a new filter |
+| Button | Edit | `filters.edit` | Top right, enables delete mode on filter rows |
+| CheckBox | Use new filter format, Requires Mastodon 4.0 or GoToSocial 0.17+ | `filters.use-v2` | v2 toggle. value="1" = v2 enabled. |
+| Button | Add | `filters.add` | Add a new filter |
 | Heading | Active | (none) | Section header for active filters |
 | Heading | Expired | (none) | Section header for expired filters (if any) |
-| Button | {filter title}, {keywords}, {action} | (none) | Filter row. Label contains title, keywords, and action (Warn/Hide). Has "Delete" custom action. |
+| Button | {filter title}, {keywords}, {action} | `filters.filter.{id}` or `filters.filter-v2.{id}` | Filter row. Identifier contains the filter's server ID. Has "Delete" custom action. |
 
 ## States
 
@@ -60,5 +60,5 @@ Filter rows show: filter title, keyword list, and action type (Warn or Hide for 
 ## Quirks
 
 - The v2 toggle label includes the subtitle text: "Use new filter format, Requires Mastodon 4.0 or GoToSocial 0.17+".
-- Filter rows have no identifier — located by label which combines title, keywords, and action.
+- Filter rows have `filters.filter.{id}` (v1) or `filters.filter-v2.{id}` (v2) identifiers using the server-side filter ID.
 - When connected to a server that doesn't support v2 filters, the toggle may trigger a 404 fallback to v1.
