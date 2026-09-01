@@ -42,6 +42,8 @@ Web view content is not accessible via quern's UI tree — cannot be automated.
 
 ## Quirks
 
+- Web view content is out of process (`ASWebAuthenticationSession`) — see [[quirks/web-views]] for the full catalogue of Metatext's web surfaces.
+
 - Preceded by the OAuth confirmation alert (see [[alerts/oauth-confirmation]]).
 - Not automatable — user must manually enter credentials.
 - After successful auth, the app switches to the new account automatically.

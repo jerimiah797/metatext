@@ -38,5 +38,7 @@ Web view content is not accessible via quern's UI tree.
 
 ## Quirks
 
+- Served in an out-of-process `SFSafariViewController`; contents are not in the app's accessibility tree — see [[quirks/web-views]].
+
 - Not automatable — web view content is opaque to accessibility tools.
 - Close button must be tapped by coordinates (~x:25 y:73).

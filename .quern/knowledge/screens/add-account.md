@@ -18,6 +18,8 @@ reachable_from:
     condition: "logged out (no accounts)"
 
 leads_to:
+  - screen: "[[screens/instance-picker]]"
+    action: 'tap_element identifier="add-identity.get-started" element_type="button"'
   - screen: "[[screens/oauth-web]]"
     action: 'tap_element identifier="add-identity.log-in" element_type="button"'
     condition: "after entering instance URL"
@@ -42,8 +44,9 @@ Screen for adding a new Mastodon/Fediverse account. Prompts for instance URL, th
 | StaticText | Enter the URL of the Mastodon instance... | (none) | Instruction text |
 | TextField | Instance URL | `add-identity.url-field` | Text field for entering instance domain |
 | Button | Log in | `add-identity.log-in` | Initiates OAuth flow after URL is entered |
-| StaticText | What is Mastodon? | (none) | Informational section |
-| Button | Get started | `add-identity.get-started` | Likely links to joinmastodon.org or similar onboarding |
+| StaticText | What is Mastodon? | (none) | Heading for the onboarding section below |
+| WebView | — | (none) | `WKWebView` playing a YouTube embed (`youtube.com/embed/IPSbNdBmWKE`). Contents opaque — see [[quirks/web-views]] |
+| Button | Get started | `add-identity.get-started` | Modally presents [[screens/instance-picker]] — a `WKWebView` on `joinmastodon.org/communities` |
 
 ## Flow
 
@@ -63,6 +66,8 @@ Screen for adding a new Mastodon/Fediverse account. Prompts for instance URL, th
 | Adding account | Back button shows "Accounts" | Adding from existing session |
 
 ## Quirks
+
+- Two web surfaces live on or lead from this screen (the YouTube embed and the instance picker), plus the OAuth flow it launches. None is automatable by element — see [[quirks/web-views]].
 
 - The OAuth web view is a system SFSafariViewController or ASWebAuthenticationSession — not automatable via quern's tap/type tools. User must enter credentials manually.
 - The URL field expects just the domain (e.g., "mastodon.social"), not a full URL with protocol.

@@ -38,6 +38,8 @@ The web view content is not accessible via quern's UI tree — only the Applicat
 
 ## Quirks
 
+- Served in an out-of-process `SFSafariViewController`; contents are not in the app's accessibility tree — see [[quirks/web-views]].
+
 - Not automatable — web view content is opaque to accessibility tools.
 - The close button must be tapped by coordinates (~x:25 y:73).
 - On GoToSocial, the user must log in to the web settings page separately from the app login.
