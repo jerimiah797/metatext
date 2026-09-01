@@ -2,6 +2,10 @@
 screen: "notifications"
 status: documented
 
+landmarks:
+  - { element: "TabGroup", identifier: "notifications.segment-control" }
+  - { element: "RadioButton", identifier: "tab.notifications", selected: true }
+
 identify_by:
   - { element: "TabGroup", identifier: "notifications.segment-control" }
   - { element: "RadioButton", identifier: "tab.notifications", value: "1" }

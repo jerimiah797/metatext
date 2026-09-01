@@ -2,6 +2,10 @@
 screen: "messages"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Messages" }
+  - { element: "RadioButton", identifier: "tab.messages", selected: true }
+
 identify_by:
   - { element: "Heading", label: "Messages" }
   - { element: "RadioButton", identifier: "tab.messages", value: "1" }

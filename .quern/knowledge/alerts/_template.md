@@ -8,6 +8,9 @@ trigger: ""
 appears_on: []
 
 # How the agent can identify this alert when it appears unexpectedly.
+landmarks:
+  - { element: "", label: "" }
+
 identify_by:
   - { element: "", label: "" }
 

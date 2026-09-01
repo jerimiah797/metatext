@@ -2,6 +2,9 @@
 screen: "favorites"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Favorites" }
+
 identify_by:
   - { element: "Heading", label: "Favorites" }
 

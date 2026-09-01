@@ -2,6 +2,10 @@
 screen: "notification-prefs"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Notifications" }
+  - { element: "CheckBox", label: "Include pictures" }
+
 identify_by:
   - { element: "Heading", label: "Notifications" }
   - { element: "CheckBox", label: "Include pictures" }

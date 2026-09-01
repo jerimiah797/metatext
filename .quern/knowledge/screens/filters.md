@@ -2,6 +2,10 @@
 screen: "filters"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Filters" }
+  - { element: "Heading", label: "Filters" }
+
 identify_by:
   - { element: "Group", identifier: "Filters", role_description: "Nav bar" }
   - { element: "Heading", label: "Filters" }

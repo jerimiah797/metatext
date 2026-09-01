@@ -2,6 +2,10 @@
 screen: "timelines"
 status: documented
 
+landmarks:
+  - { element: "TabGroup", identifier: "timelines.segment-control" }
+  - { element: "RadioButton", identifier: "tab.timelines", selected: true }
+
 identify_by:
   - { element: "TabGroup", identifier: "timelines.segment-control" }
   - { element: "RadioButton", identifier: "tab.timelines", value: "1" }

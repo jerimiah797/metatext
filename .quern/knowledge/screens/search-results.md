@@ -2,6 +2,11 @@
 screen: "search-results"
 status: documented
 
+landmarks:
+  - { element: "Group", label: "Search results" }
+  - { element: "RadioButton", label: "All" }
+  - { element: "RadioButton", label: "People" }
+
 identify_by:
   - { element: "Group", label: "Search results" }
   - { element: "RadioButton", label: "All" }

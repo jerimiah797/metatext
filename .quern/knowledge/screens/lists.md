@@ -2,6 +2,10 @@
 screen: "lists"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Lists" }
+  - { element: "Heading", label: "Lists" }
+
 identify_by:
   - { element: "Group", identifier: "Lists", role_description: "Nav bar" }
   - { element: "Heading", label: "Lists" }

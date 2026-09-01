@@ -2,6 +2,9 @@
 screen: "acknowledgments"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Acknowledgments" }
+
 identify_by:
   - { element: "Heading", label: "Acknowledgments" }
 

@@ -4,6 +4,11 @@ trigger: "Tapping 'Log in' on the add-account screen"
 appears_on:
   - "[[screens/add-account]]"
 
+landmarks:
+  - { element: "StaticText", label_contains: "\"Metatext\" Wants to Use" }
+  - { element: "Button", label: "Continue" }
+  - { element: "Button", label: "Cancel" }
+
 identify_by:
   - { element: "StaticText", label_prefix: "\"Metatext\" Wants to Use" }
   - { element: "Button", label: "Continue" }

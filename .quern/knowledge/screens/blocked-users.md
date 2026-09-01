@@ -2,6 +2,9 @@
 screen: "blocked-users"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Blocked Users" }
+
 identify_by:
   - { element: "Heading", label: "Blocked Users" }
 

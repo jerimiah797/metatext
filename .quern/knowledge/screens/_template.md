@@ -4,6 +4,9 @@ status: documented
 
 # How an agent can confirm it's on this screen.
 # List the most reliable signals first — a unique nav title or element.
+landmarks:
+  - { element: "", label: "" }
+
 identify_by:
   - { element: "", label: "" }
 

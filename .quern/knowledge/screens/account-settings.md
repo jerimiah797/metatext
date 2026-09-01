@@ -2,6 +2,10 @@
 screen: "account-settings"
 status: documented
 
+landmarks: []
+# TODO: no machine-evaluable landmarks yet. Legacy note: SFSafariViewController showing server settings page
+# Re-author from a live screen, or see the note in the body below.
+
 identify_by:
   - "SFSafariViewController showing server settings page"
 

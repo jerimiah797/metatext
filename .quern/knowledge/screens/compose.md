@@ -2,6 +2,11 @@
 screen: "compose"
 status: documented
 
+landmarks:
+  - { element: "Button", identifier: "new-status.cancel" }
+  - { element: "Button", identifier: "new-status.post" }
+  - { element: "TextArea", identifier: "composition.text" }
+
 identify_by:
   - { element: "Button", identifier: "new-status.cancel" }
   - { element: "Button", identifier: "new-status.post" }

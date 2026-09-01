@@ -2,6 +2,10 @@
 screen: "status-menu"
 status: documented
 
+landmarks:
+  - { element: "Button", label: "Dismiss context menu" }
+  - { element: "Button", label: "Bookmark" }
+
 identify_by:
   - { element: "Button", label: "Dismiss context menu" }
   - { element: "Button", label: "Bookmark" }

@@ -2,6 +2,9 @@
 screen: "bookmarks"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Bookmarks" }
+
 identify_by:
   - { element: "Heading", label: "Bookmarks" }
 

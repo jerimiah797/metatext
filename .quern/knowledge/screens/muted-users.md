@@ -2,6 +2,9 @@
 screen: "muted-users"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Muted Users" }
+
 identify_by:
   - { element: "Heading", label: "Muted Users" }
 

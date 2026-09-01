@@ -2,6 +2,11 @@
 screen: "account-menu"
 status: documented
 
+landmarks:
+  - { element: "Button", label: "close" }
+  - { element: "Button", label: "My Profile" }
+  - { element: "Button", label: "Preferences" }
+
 identify_by:
   - { element: "Button", label: "close" }
   - { element: "Button", label: "My Profile" }

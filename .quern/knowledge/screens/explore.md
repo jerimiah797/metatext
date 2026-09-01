@@ -2,6 +2,11 @@
 screen: "explore"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Explore" }
+  - { element: "TextField", identifier: "explore.search-field" }
+  - { element: "RadioButton", identifier: "tab.explore", selected: true }
+
 identify_by:
   - { element: "Group", identifier: "Explore", role_description: "Nav bar" }
   - { element: "TextField", identifier: "explore.search-field" }

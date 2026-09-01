@@ -2,6 +2,10 @@
 screen: "accounts"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Accounts" }
+  - { element: "StaticText", label: "Add" }
+
 identify_by:
   - { element: "Group", identifier: "Accounts", role_description: "Nav bar" }
   - { element: "StaticText", label: "Add" }

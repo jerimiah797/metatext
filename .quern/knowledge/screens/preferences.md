@@ -2,6 +2,10 @@
 screen: "preferences"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Preferences" }
+  - { element: "Button", identifier: "BackButton", label: "Back" }
+
 identify_by:
   - { element: "Heading", label: "Preferences" }
   - { element: "Button", label: "Back", identifier: "BackButton" }

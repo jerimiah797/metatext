@@ -2,6 +2,10 @@
 screen: "add-account"
 status: documented
 
+landmarks:
+  - { element: "TextField", identifier: "add-identity.url-field" }
+  - { element: "Button", identifier: "add-identity.log-in" }
+
 identify_by:
   - { element: "TextField", identifier: "add-identity.url-field" }
   - { element: "Button", identifier: "add-identity.log-in" }

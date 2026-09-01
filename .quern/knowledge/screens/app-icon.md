@@ -2,6 +2,9 @@
 screen: "app-icon"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "App Icon" }
+
 identify_by:
   - { element: "Heading", label: "App Icon" }
 

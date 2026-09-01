@@ -2,6 +2,10 @@
 screen: "oauth-web"
 status: documented
 
+landmarks: []
+# TODO: no machine-evaluable landmarks yet. Legacy note: ASWebAuthenticationSession web view
+# Re-author from a live screen, or see the note in the body below.
+
 identify_by:
   - "ASWebAuthenticationSession web view"
 

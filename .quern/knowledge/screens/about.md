@@ -2,6 +2,10 @@
 screen: "about"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "About" }
+  - { element: "Heading", label: "Made by Metabolist" }
+
 identify_by:
   - { element: "Heading", label: "About" }
   - { element: "Heading", label: "Made by Metabolist" }

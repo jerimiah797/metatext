@@ -2,6 +2,10 @@
 screen: "blocked-domains"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Blocked Domains" }
+  - { element: "Heading", label: "Blocked Domains" }
+
 identify_by:
   - { element: "Group", identifier: "Blocked Domains", role_description: "Nav bar" }
   - { element: "Heading", label: "Blocked Domains" }

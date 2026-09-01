@@ -2,6 +2,11 @@
 screen: "add-filter"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Add New Filter" }
+  - { element: "Heading", label: "Add New Filter" }
+  - { element: "TextField", identifier: "filter.title.field" }
+
 identify_by:
   - { element: "Group", identifier: "Add New Filter", role_description: "Nav bar" }
   - { element: "Heading", label: "Add New Filter" }

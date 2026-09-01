@@ -2,6 +2,9 @@
 screen: "notification-types"
 status: documented
 
+landmarks:
+  - { element: "Heading", label: "Notification Types" }
+
 identify_by:
   - { element: "Heading", label: "Notification Types" }
 

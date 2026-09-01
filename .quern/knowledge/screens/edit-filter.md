@@ -2,6 +2,11 @@
 screen: "edit-filter"
 status: documented
 
+landmarks:
+  - { element: "Group", identifier: "Edit Filter" }
+  - { element: "Heading", label: "Edit Filter" }
+  - { element: "Button", identifier: "filter.save", label: "Save Changes" }
+
 identify_by:
   - { element: "Group", identifier: "Edit Filter", role_description: "Nav bar" }
   - { element: "Heading", label: "Edit Filter" }

@@ -2,6 +2,9 @@
 screen: "followers-list"
 status: documented
 
+landmarks:
+  - { element: "Heading", label_contains: "Followers" }
+
 identify_by:
   - { element: "Heading", label_contains: "Followers" }
 

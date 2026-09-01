@@ -2,6 +2,14 @@
 screen: "profile"
 status: documented
 
+landmarks:
+  - { element: "Button", label_contains: "Header image:" }
+  - { element: "Button", label_contains: "Avatar:" }
+# NOTE: the legacy identify_by below lists a Heading labelled "@username". That was
+# a documentation placeholder, not text the app renders. Landmarks are AND-matched,
+# so including it would mean this screen could never be identified. The two
+# structural landmarks above carry the identity.
+
 identify_by:
   - { element: "Button", label_prefix: "Header image:" }
   - { element: "Button", label_prefix: "Avatar:" }
