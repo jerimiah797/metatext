@@ -13,7 +13,7 @@ landmarks: []
 # Visit the screen, run get_ui_tree, and author from what the modal actually exposes.
 
 identify_by:
-  - "Modally presented web view on joinmastodon.org/communities, pushed in a UINavigationController from add-account"
+  - "Modally presented web view on joinmastodon.org/servers, pushed in a UINavigationController from add-account"
 
 reachable_from:
   - screen: "[[screens/add-account]]"
@@ -30,7 +30,7 @@ tags: [onboarding, web-view]
 
 # Instance Picker
 
-Modally presented `WKWebView` loading `https://joinmastodon.org/communities`, so
+Modally presented `WKWebView` loading `https://joinmastodon.org/servers`, so
 a new user can browse Fediverse servers before choosing one. Presented inside a
 `UINavigationController` from the "Get started" button on [[screens/add-account]].
 
@@ -47,7 +47,7 @@ content and is **not** in the accessibility tree — see [[quirks/web-views]].
 | NavigationBar | *(the web page's title)* | (none) | Bound to `webView.title` — joinmastodon.org's copy, not Metatext's. Do not use as a landmark |
 | Button | Done | (none) | System `.done` bar button; dismisses the modal |
 | Button | *(chevrons)* | (none) | Back/forward web navigation; `title: nil`, image-only, no identifier |
-| WebView | — | (none) | `joinmastodon.org/communities`; contents opaque to `get_ui_tree` |
+| WebView | — | (none) | `joinmastodon.org/servers`; opaque to `get_ui_tree`, readable via the Web Inspector in a debug build — see [[quirks/web-views]] |
 
 ## States
 
@@ -70,3 +70,22 @@ this is third-party content on someone else's deployment schedule.
   four web surfaces.
 - Reaching it requires no account or network auth, which makes it a convenient
   fixture for exercising web-view handling.
+
+## Web content
+
+Debug builds set `isInspectable = true` on this web view, so the page's own DOM
+is available rather than only what accessibility exposes. Measured against
+`joinmastodon.org/servers`:
+
+| | elements | time |
+|---|---|---|
+| Web Inspector | 6, including the icon-only `Toggle menu` button | 15ms |
+| Accessibility hit-test | 4, text only | ~830ms |
+
+Page coordinates are viewport-relative; a single hit-test anchors them. The
+offset here was `(0, 100)` — the web view starts below the nav bar.
+
+The page is third-party and changes without an app release: it moved from
+`/communities` to `/servers` between KB revisions. Prefer structural selectors
+(`h1`, `button[aria-label]`) over text that the site can reword.
+
