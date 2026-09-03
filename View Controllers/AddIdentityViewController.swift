@@ -44,6 +44,10 @@ final class AddIdentityViewController: UIViewController {
 
         whatIsMastodonVideoView = WKWebView(frame: .zero, configuration: configuration)
 
+        #if DEBUG
+        if #available(iOS 16.4, *) { whatIsMastodonVideoView.isInspectable = true }
+        #endif
+
         super.init(nibName: nil, bundle: nil)
     }
 

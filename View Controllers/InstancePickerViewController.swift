@@ -15,6 +15,14 @@ final class InstancePickerViewController: UIViewController {
         let webView = WKWebView()
 
         webView.allowsBackForwardNavigationGestures = true
+
+        #if DEBUG
+        // Since iOS 16.4 WKWebView is not inspectable unless opted in, which
+        // closes off Safari Web Inspector and the WebKit remote debugger that
+        // automation harnesses drive. Debug builds only — this is a real
+        // exposure surface and must never ship in release.
+        if #available(iOS 16.4, *) { webView.isInspectable = true }
+        #endif
         self.webView = webView
         self.selectionAction = selectionAction
         backButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "chevron.backward"),
