@@ -2,10 +2,12 @@
 screen: "account-settings"
 status: documented
 
-landmarks: []
 # The accessibility tree reports exactly one element here (the Application), so
-# there is nothing native to identify this screen by. It is recognisable from
-# the web view instead -- see web_content.url below.
+# there is nothing native to identify this screen by. The web view is the
+# identity: the URL comes from the Web Inspector's page listing, which costs one
+# round trip and no probes.
+landmarks:
+  - { web_url_contains: "/settings" }
 
 # Measured 2026-09-03 against social.arctian.org (GoToSocial 0.22.1).
 web_content:
