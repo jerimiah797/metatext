@@ -6,10 +6,6 @@ landmarks:
   - { element: "Group", identifier: "Blocked Domains" }
   - { element: "Heading", label: "Blocked Domains" }
 
-identify_by:
-  - { element: "Group", identifier: "Blocked Domains", role_description: "Nav bar" }
-  - { element: "Heading", label: "Blocked Domains" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Blocked Domains" element_type="button"'

@@ -12,9 +12,6 @@ landmarks: []
 #     label is locale-dependent and shared with other modals.
 # Visit the screen, run get_ui_tree, and author from what the modal actually exposes.
 
-identify_by:
-  - "Modally presented web view on joinmastodon.org/servers, pushed in a UINavigationController from add-account"
-
 reachable_from:
   - screen: "[[screens/add-account]]"
     action: 'tap_element identifier="add-identity.get-started" element_type="button"'

@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label: "Favorites" }
 
-identify_by:
-  - { element: "Heading", label: "Favorites" }
-
 reachable_from:
   - screen: "[[screens/account-menu]]"
     action: 'tap_element label="Favorites" element_type="button"'

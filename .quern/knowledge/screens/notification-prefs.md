@@ -6,10 +6,6 @@ landmarks:
   - { element: "Heading", label: "Notifications" }
   - { element: "CheckBox", label: "Include pictures" }
 
-identify_by:
-  - { element: "Heading", label: "Notifications" }
-  - { element: "CheckBox", label: "Include pictures" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Notifications" element_type="button"'

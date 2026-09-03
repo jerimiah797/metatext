@@ -7,11 +7,6 @@ landmarks:
   - { element: "Button", label: "My Profile" }
   - { element: "Button", label: "Preferences" }
 
-identify_by:
-  - { element: "Button", label: "close" }
-  - { element: "Button", label: "My Profile" }
-  - { element: "Button", label: "Preferences" }
-
 reachable_from:
   - screen: "any screen with Account Menu button"
     action: 'tap_element label="Account Menu" element_type="button"'

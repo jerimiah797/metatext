@@ -3,11 +3,27 @@ screen: "account-settings"
 status: documented
 
 landmarks: []
-# TODO: no machine-evaluable landmarks yet. Legacy note: SFSafariViewController showing server settings page
-# Re-author from a live screen, or see the note in the body below.
+# The accessibility tree reports exactly one element here (the Application), so
+# there is nothing native to identify this screen by. It is recognisable from
+# the web view instead -- see web_content.url below.
 
-identify_by:
-  - "SFSafariViewController showing server settings page"
+# Measured 2026-09-03 against social.arctian.org (GoToSocial 0.22.1).
+web_content:
+  - host: "SFSafariViewController"
+    process: "com.apple.SafariViewService"
+    # Out of process: hosted by SafariViewService, NOT by org.arctian.metatext,
+    # so this is what to pass as bundle_id. It needs no isInspectable from the
+    # app -- that property only governs the app's own WKWebViews.
+    reachable_by: [inspector, hit_test]
+    url: "https://social.arctian.org/settings"
+    anchor:
+      # A hint, not a fact: confirmed by one probe before use, and ignored if it
+      # no longer holds. Recorded because finding it otherwise costs a 17-probe
+      # sweep -- the view carries its own chrome at both ends, none of which the
+      # native tree can see, so geometry cannot guess the origin.
+      origin: [0, 106]
+      viewport: [402, 685]
+      measured_on: "iPhone 16 Pro - iOS 18.6"
 
 reachable_from:
   - screen: "[[screens/account-menu]]"

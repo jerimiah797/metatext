@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label: "Blocked Users" }
 
-identify_by:
-  - { element: "Heading", label: "Blocked Users" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Blocked Users" element_type="button"'

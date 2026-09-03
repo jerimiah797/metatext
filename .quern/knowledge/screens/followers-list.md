@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label_contains: "Followers" }
 
-identify_by:
-  - { element: "Heading", label_contains: "Followers" }
-
 reachable_from:
   - screen: "[[screens/profile]]"
     action: 'tap_element label_contains="Follower" element_type="button"'

@@ -6,10 +6,6 @@ landmarks:
   - { element: "TabGroup", identifier: "notifications.segment-control" }
   - { element: "RadioButton", identifier: "tab.notifications", selected: true }
 
-identify_by:
-  - { element: "TabGroup", identifier: "notifications.segment-control" }
-  - { element: "RadioButton", identifier: "tab.notifications", value: "1" }
-
 reachable_from:
   - screen: "any tab"
     action: 'tap_element label="Notifications" element_type="radioButton"'

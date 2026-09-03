@@ -9,13 +9,6 @@ landmarks:
   - { element: "Button", identifier: "status.share" }
   - { element: "Button", identifier: "status.menu" }
 
-identify_by:
-  - { element: "Button", identifier: "status.reply" }
-  - { element: "Button", identifier: "status.reblog" }
-  - { element: "Button", identifier: "status.favorite" }
-  - { element: "Button", identifier: "status.share" }
-  - { element: "Button", identifier: "status.menu" }
-
 reachable_from:
   - screen: "[[screens/timelines]]"
     action: "tap a post cell"

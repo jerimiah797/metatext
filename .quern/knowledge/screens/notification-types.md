@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label: "Notification Types" }
 
-identify_by:
-  - { element: "Heading", label: "Notification Types" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Notification Types" element_type="button"'

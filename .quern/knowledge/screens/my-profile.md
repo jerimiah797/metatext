@@ -6,9 +6,6 @@ landmarks: []
 # TODO: no machine-evaluable landmarks yet. Legacy note: Same as [[screens/profile]] — this is just an alias for viewing your own profile
 # Re-author from a live screen, or see the note in the body below.
 
-identify_by:
-  - "Same as [[screens/profile]] — this is just an alias for viewing your own profile"
-
 reachable_from:
   - screen: "[[screens/account-menu]]"
     action: 'tap_element label="My Profile" element_type="button"'

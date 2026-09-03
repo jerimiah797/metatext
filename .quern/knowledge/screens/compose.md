@@ -7,11 +7,6 @@ landmarks:
   - { element: "Button", identifier: "new-status.post" }
   - { element: "TextArea", identifier: "composition.text" }
 
-identify_by:
-  - { element: "Button", identifier: "new-status.cancel" }
-  - { element: "Button", identifier: "new-status.post" }
-  - { element: "TextArea", identifier: "composition.text" }
-
 reachable_from:
   - screen: "[[screens/timelines]]"
     action: 'tap_element label="Compose Post" element_type="button"'

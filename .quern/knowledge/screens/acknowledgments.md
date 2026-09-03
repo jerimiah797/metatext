@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label: "Acknowledgments" }
 
-identify_by:
-  - { element: "Heading", label: "Acknowledgments" }
-
 reachable_from:
   - screen: "[[screens/about]]"
     action: 'tap_element label="Acknowledgments" element_type="button"'

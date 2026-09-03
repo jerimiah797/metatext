@@ -7,11 +7,6 @@ landmarks:
   - { element: "TextField", identifier: "explore.search-field" }
   - { element: "RadioButton", identifier: "tab.explore", selected: true }
 
-identify_by:
-  - { element: "Group", identifier: "Explore", role_description: "Nav bar" }
-  - { element: "TextField", identifier: "explore.search-field" }
-  - { element: "RadioButton", identifier: "tab.explore", value: "1" }
-
 reachable_from:
   - screen: "any tab"
     action: 'tap_element label="Explore" element_type="radioButton"'

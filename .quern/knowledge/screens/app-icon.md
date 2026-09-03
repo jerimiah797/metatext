@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label: "App Icon" }
 
-identify_by:
-  - { element: "Heading", label: "App Icon" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label_prefix="App Icon" element_type="button"'

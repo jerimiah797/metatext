@@ -6,10 +6,6 @@ landmarks:
   - { element: "Button", label: "Dismiss context menu" }
   - { element: "Button", label: "Bookmark" }
 
-identify_by:
-  - { element: "Button", label: "Dismiss context menu" }
-  - { element: "Button", label: "Bookmark" }
-
 reachable_from:
   - screen: "[[screens/status-detail]]"
     action: 'tap_element identifier="status.menu" element_type="button"'

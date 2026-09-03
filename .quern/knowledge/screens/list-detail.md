@@ -2,8 +2,6 @@
 screen: "list-detail"
 status: stub
 
-identify_by: []
-
 reachable_from:
   - screen: "[[screens/lists]]"
     action: "tap a list row"

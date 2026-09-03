@@ -10,11 +10,6 @@ landmarks:
 # so including it would mean this screen could never be identified. The two
 # structural landmarks above carry the identity.
 
-identify_by:
-  - { element: "Button", label_prefix: "Header image:" }
-  - { element: "Button", label_prefix: "Avatar:" }
-  - { element: "Heading", label: "@username" }
-
 reachable_from:
   - screen: "[[screens/account-menu]]"
     action: 'tap_element label="My Profile" element_type="button"'

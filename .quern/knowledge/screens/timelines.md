@@ -6,10 +6,6 @@ landmarks:
   - { element: "TabGroup", identifier: "timelines.segment-control" }
   - { element: "RadioButton", identifier: "tab.timelines", selected: true }
 
-identify_by:
-  - { element: "TabGroup", identifier: "timelines.segment-control" }
-  - { element: "RadioButton", identifier: "tab.timelines", value: "1" }
-
 reachable_from:
   - screen: "[[app]]"
     action: 'launch_app bundle_id="org.arctian.metatext"'

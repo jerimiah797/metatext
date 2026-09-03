@@ -6,10 +6,6 @@ landmarks:
   - { element: "Heading", label: "About" }
   - { element: "Heading", label: "Made by Metabolist" }
 
-identify_by:
-  - { element: "Heading", label: "About" }
-  - { element: "Heading", label: "Made by Metabolist" }
-
 reachable_from:
   - screen: "[[screens/account-menu]]"
     action: 'tap_element label="About This App" element_type="button"'

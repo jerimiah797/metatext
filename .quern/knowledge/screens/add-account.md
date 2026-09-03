@@ -6,10 +6,6 @@ landmarks:
   - { element: "TextField", identifier: "add-identity.url-field" }
   - { element: "Button", identifier: "add-identity.log-in" }
 
-identify_by:
-  - { element: "TextField", identifier: "add-identity.url-field" }
-  - { element: "Button", identifier: "add-identity.log-in" }
-
 reachable_from:
   - screen: "[[screens/accounts]]"
     action: 'tap_element label="Add" element_type="staticText"'

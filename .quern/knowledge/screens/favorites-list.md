@@ -6,9 +6,6 @@ landmarks: []
 # TODO: no machine-evaluable landmarks yet. Legacy note: List of user profile cards (GenericElement with name, handle, bio) after tapping a favorite count button
 # Re-author from a live screen, or see the note in the body below.
 
-identify_by:
-  - "List of user profile cards (GenericElement with name, handle, bio) after tapping a favorite count button"
-
 reachable_from:
   - screen: "[[screens/status-detail]]"
     action: 'tap_element label_prefix="Favorite" element_type="button"'

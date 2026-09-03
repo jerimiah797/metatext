@@ -6,10 +6,6 @@ landmarks:
   - { element: "Group", identifier: "Accounts" }
   - { element: "StaticText", label: "Add" }
 
-identify_by:
-  - { element: "Group", identifier: "Accounts", role_description: "Nav bar" }
-  - { element: "StaticText", label: "Add" }
-
 reachable_from:
   - screen: "[[screens/account-menu]]"
     action: 'tap_element label="Accounts" element_type="button"'

@@ -6,10 +6,6 @@ landmarks:
   - { element: "Heading", label: "Preferences" }
   - { element: "Button", identifier: "BackButton", label: "Back" }
 
-identify_by:
-  - { element: "Heading", label: "Preferences" }
-  - { element: "Button", label: "Back", identifier: "BackButton" }
-
 reachable_from:
   - screen: "[[screens/account-menu]]"
     action: 'tap_element label="Preferences" element_type="button"'

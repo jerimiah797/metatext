@@ -6,10 +6,6 @@ landmarks:
   - { element: "Heading", label: "Messages" }
   - { element: "RadioButton", identifier: "tab.messages", selected: true }
 
-identify_by:
-  - { element: "Heading", label: "Messages" }
-  - { element: "RadioButton", identifier: "tab.messages", value: "1" }
-
 reachable_from:
   - screen: "any tab"
     action: 'tap_element label="Messages" element_type="radioButton"'

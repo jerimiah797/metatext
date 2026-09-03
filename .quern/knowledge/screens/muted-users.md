@@ -5,9 +5,6 @@ status: documented
 landmarks:
   - { element: "Heading", label: "Muted Users" }
 
-identify_by:
-  - { element: "Heading", label: "Muted Users" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Muted Users" element_type="button"'

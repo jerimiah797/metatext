@@ -7,9 +7,6 @@ status: documented
 landmarks:
   - { element: "", label: "" }
 
-identify_by:
-  - { element: "", label: "" }
-
 # Where this screen can be reached from.
 reachable_from:
   - screen: "[[screens/...]]"

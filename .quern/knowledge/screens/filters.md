@@ -6,10 +6,6 @@ landmarks:
   - { element: "Group", identifier: "Filters" }
   - { element: "Heading", label: "Filters" }
 
-identify_by:
-  - { element: "Group", identifier: "Filters", role_description: "Nav bar" }
-  - { element: "Heading", label: "Filters" }
-
 reachable_from:
   - screen: "[[screens/preferences]]"
     action: 'tap_element label="Filters" element_type="button"'

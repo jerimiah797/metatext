@@ -6,9 +6,6 @@ landmarks: []
 # TODO: no machine-evaluable landmarks yet. Legacy note: ASWebAuthenticationSession web view
 # Re-author from a live screen, or see the note in the body below.
 
-identify_by:
-  - "ASWebAuthenticationSession web view"
-
 reachable_from:
   - screen: "[[screens/add-account]]"
     action: 'tap_element identifier="add-identity.log-in" element_type="button"'
