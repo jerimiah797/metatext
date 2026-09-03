@@ -3,3 +3,10 @@ xcuserdata/
 .DS_Store
 DerivedData/
 CLAUDE.md
+
+# xcodebuild's default output location, and where it resolves Swift Package
+# checkouts when run from the command line. DerivedData/ above only covers
+# builds that use the default derived-data path; a plain `xcodebuild` or
+# `xcodebuild -list` in this directory writes here instead, and the SPM
+# checkouts alone come to over a gigabyte.
+build/
