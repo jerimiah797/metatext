@@ -7,7 +7,9 @@ status: documented
 # identity: the URL comes from the Web Inspector's page listing, which costs one
 # round trip and no probes.
 landmarks:
-  - { web_url_contains: "/settings" }
+  # Scoped to the hosting process: the app's own web views are connected at the
+  # same time, and a page URL alone cannot say which of them is showing it.
+  - { web_url_contains: "/settings", web_process: "com.apple.SafariViewService" }
 
 # Measured 2026-09-03 against social.arctian.org (GoToSocial 0.22.1).
 web_content:
